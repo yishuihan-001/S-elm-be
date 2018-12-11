@@ -1,0 +1,168 @@
+'use strict'
+
+import BaseComponent from './baseComponent'
+
+/*
+腾讯地图和百度地图API统一调配组件
+ */
+class AddressComponent extends BaseComponent {
+  constructor () {
+    super()
+    this.tencentkey = 'ISABZ-W7U35-BSBI3-QBOSK-ACI7J-2NFLW'
+    this.tencentkey2 = 'KF2BZ-FKSHJ-66SFT-KQOYT-7HVVO-C7BYP'
+    this.baidukey = 'PbyU8Y7urkTUQmWVOwZhlkxdDkLgbVo5'
+    this.baidukey2 = 'bYeu9xUGOzk4GnYI3UhVLVAWWdVFZyRM'
+  }
+  // 获取定位地址
+  async guessPosition (req) {
+    return new Promise(async (resolve, reject) => {
+      let ip =
+        req.headers['x-forwarded-for'] ||
+        req.connection.remoteAddress ||
+        req.socket.remoteAddress ||
+        req.connection.socket.remoteAddress
+      const ipArr = ip.split(':')
+      ip = ipArr[ipArr.length - 1]
+      if (process.env.NODE_ENV === 'development') {
+        ip = '106.38.50.170'
+      }
+      try {
+        let result = await this.fetch(
+          'https://apis.map.qq.com/ws/location/v1/ip',
+          {
+            ip,
+            key: this.tencentkey
+          }
+        )
+        if (result.status !== 0) {
+          result = await this.fetch(
+            'https://apis.map.qq.com/ws/location/v1/ip',
+            {
+              ip,
+              key: this.tencentkey2
+            }
+          )
+        }
+        if (result.status === 0) {
+          const cityInfo = {
+            lat: result.result.location.lat,
+            lng: result.result.location.lng,
+            city: result.result.ad_info.city
+          }
+          cityInfo.city = cityInfo.city.replace(/市$/, '')
+          resolve(cityInfo)
+        } else {
+          reject(new Error('定位失败'))
+        }
+      } catch (err) {
+        reject(err.message || '定位失败c')
+      }
+    })
+  }
+  // 搜索地址
+  async searchPlace (keyword, cityName, type = 'search') {
+    try {
+      const resObj = await this.fetch(
+        'https://apis.map.qq.com/ws/place/v1/search',
+        {
+          key: this.tencentkey,
+          keyword: encodeURIComponent(keyword),
+          boundary: 'region(' + encodeURIComponent(cityName) + ',0)',
+          page_size: 10
+        }
+      )
+      if (resObj.status === 0) {
+        return resObj
+      } else {
+        throw new Error('搜索位置信息失败')
+      }
+    } catch (err) {
+      throw new Error(err.message || '搜索位置信息失败c')
+    }
+  }
+  // 测量距离
+  async getDistance (from, to, type) {
+    try {
+      let res
+      res = await this.fetch(
+        'https://api.map.baidu.com/routematrix/v2/driving',
+        {
+          ak: this.baidukey,
+          output: 'json',
+          origins: from,
+          destinations: to
+        }
+      )
+      if (res.status !== 0) {
+        res = await this.fetch(
+          'https://api.map.baidu.com/routematrix/v2/driving',
+          {
+            ak: this.baidukey2,
+            output: 'json',
+            origins: from,
+            destinations: to
+          }
+        )
+      }
+      if (res.status === 0) {
+        const positionArr = []
+        let timevalue
+        res.result.forEach(item => {
+          timevalue = parseInt(item.duration.value) + 1200
+          let durationtime = Math.ceil((timevalue % 3600) / 60) + '分钟'
+          if (Math.floor(timevalue / 3600)) {
+            durationtime = Math.floor(timevalue / 3600) + '小时' + durationtime
+          }
+          positionArr.push({
+            distance: item.distance.text,
+            order_lead_time: durationtime
+          })
+        })
+        if (type === 'tiemvalue') {
+          return timevalue
+        } else {
+          return positionArr
+        }
+      } else {
+        throw new Error('调用百度地图测距失败')
+      }
+    } catch (err) {
+      throw new Error(err.message || '获取位置距离失败c')
+    }
+  }
+  // 通过ip地址获取精确位置
+  async geocoder (req) {
+    try {
+      const address = await this.guessPosition(req)
+      const res = await this.fetch('https://apis.map.qq.com/ws/geocoder/v1/', {
+        key: this.tencentkey,
+        location: address.lat + ',' + address.lng
+      })
+      if (res.status === 0) {
+        return res
+      } else {
+        throw new Error('获取具体位置信息失败')
+      }
+    } catch (err) {
+      throw new Error(err.message || '获取具体位置信息失败c')
+    }
+  }
+  // 通过geohash获取精确位置
+  async getpois (lat, lng) {
+    try {
+      const res = await this.fetch('https://apis.map.qq.com/ws/geocoder/v1/', {
+        key: this.tencentkey,
+        location: lat + ',' + lng
+      })
+      if (res.status === 0) {
+        return res
+      } else {
+        throw new Error('通过获geohash取具体位置失败')
+      }
+    } catch (err) {
+      throw new Error(err.message || '通过获geohash取具体位置失败c')
+    }
+  }
+}
+
+export default AddressComponent
