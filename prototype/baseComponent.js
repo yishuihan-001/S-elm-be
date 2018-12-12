@@ -1,29 +1,23 @@
 import fetch from 'node-fetch'
-import Ids from '../models/ids'
+import IdModel from '../models/ids'
 import formidable from 'formidable'
 import path from 'path'
 import fs from 'fs'
 import qiniu from 'qiniu'
 import gm from 'gm'
 import Res from '../lib/res'
-qiniu.conf.ACCESS_KEY = 'hfogdQtxPwHjC7Xy8vlHeXxVjqdnX5NfN3pOnPvA'
-qiniu.conf.SECRET_KEY = 'V1536udnQGJsRx0QzyaEFW2bxIZji01vmd2Jy-gB'
+
+const accessKey = 'hfogdQtxPwHjC7Xy8vlHeXxVjqdnX5NfN3pOnPvA'
+const secretKey = 'V1536udnQGJsRx0QzyaEFW2bxIZji01vmd2Jy-gB'
+const mac = new qiniu.auth.digest.Mac(accessKey, secretKey)
+const config = new qiniu.conf.Config()
 
 export default class BaseComponent {
   constructor () {
     this.idList = [
-      'restaurant_id',
-      'food_id',
-      'order_id',
-      'user_id',
-      'address_id',
-      'cart_id',
+      'test_id',
       'img_id',
-      'category_id',
-      'item_id',
-      'sku_id',
-      'admin_id',
-      'statis_id'
+      'static_id'
     ]
     this.imgTypeList = ['shop', 'food', 'avatar', 'default']
     this.uploadImg = this.uploadImg.bind(this)
@@ -59,7 +53,7 @@ export default class BaseComponent {
     }
     let responseJson
     try {
-      const response = await fetch(url, requestConfig)
+      let response = await fetch(url, requestConfig)
       if (resType === 'TEXT') {
         responseJson = await response.text()
       } else {
@@ -76,20 +70,28 @@ export default class BaseComponent {
       throw new Error('id类型错误')
     }
     try {
-      const idData = await Ids.findOne()
-      idData[type]++
-      await idData.save()
-      return idData[type]
+      let idData = await IdModel.findOne({ name: type })
+      if (!idData) {
+        let newIdData = {
+          name: type,
+          value: 1
+        }
+        idData = await IdModel.create(newIdData)
+      } else {
+        idData.value++
+        idData.save()
+      }
+      return idData.value
     } catch (err) {
       throw new Error(err.message || '获取ID数据失败')
     }
   }
 
   async uploadImg (req, res, next) {
-    // const type = req.params.type
+    // let type = req.params.type
     try {
-      // const image_path = await this.qiniu(req, type)
-      const image_path = await this.getPath(req)
+      // let image_path = await this.qiniu(req, type)
+      let image_path = await this.getPath(req)
       res.send(Res.Success(image_path))
     } catch (err) {
       res.send(Res.Fail(err.message || '上传图片失败'))
@@ -98,7 +100,7 @@ export default class BaseComponent {
 
   async getPath (req) {
     return new Promise((resolve, reject) => {
-      const form = formidable.IncomingForm()
+      let form = formidable.IncomingForm()
       form.uploadDir = './public/img'
       form.parse(req, async (err, fields, files) => {
         if (err) throw err
@@ -109,15 +111,12 @@ export default class BaseComponent {
           fs.unlink(files.file.path)
           reject(new Error(err.message || '获取图片id失败'))
         }
-        const imgName =
+        let imgName =
           (new Date().getTime() + Math.ceil(Math.random() * 10000)).toString(
             16
           ) + img_id
-        console.log('===> start')
-        console.log(JSON.stringify(fields))
-        console.log(JSON.stringify(files))
-        const fullName = imgName + path.extname(files.file.name)
-        const repath = './public/img/' + fullName
+        let fullName = imgName + path.extname(files.file.name)
+        let repath = './public/img/' + fullName
         try {
           await fs.rename(files.file.path, repath)
           // gm(repath)
@@ -139,7 +138,7 @@ export default class BaseComponent {
 
   async qiniu (req, type = 'default') {
     return new Promise((resolve, reject) => {
-      const form = formidable.IncomingForm()
+      let form = formidable.IncomingForm()
       form.uploadDir = './public/img'
       form.parse(req, async (err, fields, files) => {
         if (err) throw err
@@ -150,17 +149,18 @@ export default class BaseComponent {
           fs.unlink(files.file.path)
           reject(new Error(err.message || '获取图片id失败'))
         }
-        const imgName =
+        let imgName =
           (new Date().getTime() + Math.ceil(Math.random() * 10000)).toString(
             16
           ) + img_id
-        const extname = path.extname(files.file.name)
-        const repath = './public/img/' + imgName + extname
+        let extname = path.extname(files.file.name)
+        let repath = './public/img/' + imgName + extname
         try {
-          const key = imgName + extname
+          let key = imgName + extname
           await fs.rename(files.file.path, repath)
-          const token = this.uptoken('s-elm', key)
-          const qiniuImg = await this.uploadFile(token.toString(), key, repath)
+          let token = this.uptoken('s-elm', key)
+          let uploadToken = await token.uploadToken(mac)
+          let qiniuImg = await this.uploadFile(uploadToken, key, repath)
           fs.unlink(repath)
           resolve(qiniuImg)
         } catch (err) {
@@ -171,13 +171,14 @@ export default class BaseComponent {
     })
   }
   uptoken (bucket, key) {
-    var putPolicy = new qiniu.rs.PutPolicy(bucket + ':' + key)
-    return putPolicy.token()
+    var putPolicy = new qiniu.rs.PutPolicy({ scope: bucket + ':' + key })
+    return putPolicy
   }
   uploadFile (uptoken, key, localFile) {
     return new Promise((resolve, reject) => {
-      var extra = new qiniu.io.PutExtra()
-      qiniu.io.putFile(uptoken, key, localFile, extra, function (err, ret) {
+      let formUploader = new qiniu.form_up.FormUploader(config)
+      let putExtra = new qiniu.form_up.PutExtra()
+      formUploader.putFile(uptoken, key, localFile, putExtra, function (err, ret) {
         if (!err) {
           resolve(ret.key)
         } else {

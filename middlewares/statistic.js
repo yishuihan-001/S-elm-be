@@ -1,25 +1,25 @@
-'use strict'
-
+import timestamp from 'time-stamp'
 import BaseComponent from '../prototype/baseComponent'
-import StatisModel from '../models/statis/statis'
-import dtime from 'time-stamp'
+import StaticModel from '../models/static/static'
 
 class Statistic extends BaseComponent {
   constructor () {
     super()
     this.apiRecord = this.apiRecord.bind(this)
   }
+
   async apiRecord (req, res, next) {
     try {
-      const statis_id = await this.getId('statis_id')
-      const apiInfo = {
-        date: dtime('YYYY-MM-DD'),
-        origin: req.headers.origin,
-        id: statis_id
+      let static_id = await this.getId('static_id')
+      let apiInfo = {
+        id: static_id,
+        url: req.url,
+        host: req.headers.host,
+        date: timestamp('YYYY-MM-DD HH:mm:ss')
       }
-      StatisModel.create(apiInfo)
+      StaticModel.create(apiInfo)
     } catch (err) {
-      console.log('API记录出错', err)
+      console.log(err.message || 'API记录出错')
     }
     next()
   }

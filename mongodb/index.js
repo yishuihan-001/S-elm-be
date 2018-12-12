@@ -12,7 +12,7 @@ mongoose.Promise = global.Promise
 const db = mongoose.connection
 
 db.once('open', () => {
-  console.log(chalk.green('连接数据库成功'))
+  console.log(chalk.green('Connect database successful: ==>'))
 })
 
 db.on('error', function (error) {
