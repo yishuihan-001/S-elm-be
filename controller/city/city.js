@@ -1,8 +1,8 @@
 'use strict'
 
 import pinyin from 'pinyin'
-import AddressComponent from '../../prototype/addressComponent'
 import CityModel from '../../models/city/city'
+import AddressComponent from '../../prototype/addressComponent'
 import Validator from '../../lib/validator'
 import Ju from '../../lib/judge'
 import Res from '../../lib/res'
@@ -16,6 +16,7 @@ class City extends AddressComponent {
     this.search = this.search.bind(this)
     this.getPosiByGeo = this.getPosiByGeo.bind(this)
   }
+
   async test (req, res, next) {
     try {
       res.send(Res.Success('测试'))

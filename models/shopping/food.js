@@ -4,7 +4,7 @@ import mongoose from 'mongoose'
 
 const foodSchema = new mongoose.Schema(
   {
-
+    data: {}
   },
   {
     versionKey: false

@@ -14,12 +14,15 @@ class Test extends AddressComponent {
     this.testGuessAddress = this.testGuessAddress.bind(this)
     this.testGetAddressByGeo = this.testGetAddressByGeo.bind(this)
   }
+
   default (req, res, next) {
     res.send(Res.Success('default'))
   }
+
   one (req, res, next) {
     res.send(Res.Success('one'))
   }
+
   // id
   async testGetId (req, res, next) {
     let { name } = req.params
@@ -30,6 +33,7 @@ class Test extends AddressComponent {
       res.send(Res.Fail(err.message || '获取id: ' + name + ' 失败t'))
     }
   }
+
   // 上传本地图片
   async testUploadImg (req, res, next) {
     try {
@@ -38,6 +42,7 @@ class Test extends AddressComponent {
       res.send(Res.Fail(err.message || '图片上传失败t'))
     }
   }
+
   // 猜测城市
   async testGuessCity (req, res, next) {
     try {
@@ -47,6 +52,7 @@ class Test extends AddressComponent {
       res.send(Res.Fail(err.message || '地址定位失败t'))
     }
   }
+
   // 搜索地址
   async testSearchPlace (req, res, next) {
     let { keyword, city } = req.query
@@ -57,6 +63,7 @@ class Test extends AddressComponent {
       res.send(Res.Fail(err.message || '地址定位失败t'))
     }
   }
+
   // 测距
   async testGetDistance (req, res, next) {
     let { from, to } = req.query
@@ -67,6 +74,7 @@ class Test extends AddressComponent {
       res.send(Res.Fail(err.message || '测距失败t'))
     }
   }
+
   // 猜测地址
   async testGuessAddress (req, res, next) {
     try {
@@ -76,6 +84,7 @@ class Test extends AddressComponent {
       res.send(Res.Fail(err.message || '通过ip定位失败t'))
     }
   }
+
   // 通过经纬度定位
   async testGetAddressByGeo (req, res, next) {
     let { lat, lng } = req.params

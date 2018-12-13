@@ -1,7 +1,7 @@
 'use strict'
 
+import FoodModel from '../../models/shopping/food'
 import AddressComponent from '../../prototype/addressComponent'
-// import CityModel from '../../models/city/city'
 import Validator from '../../lib/validator'
 import Ju from '../../lib/judge'
 import Res from '../../lib/res'
@@ -11,6 +11,7 @@ class Food extends AddressComponent {
     super()
     this.test = this.test.bind(this)
   }
+
   async test (req, res, next) {
     try {
       res.send(Res.Success('测试'))

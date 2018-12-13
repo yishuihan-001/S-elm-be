@@ -17,7 +17,8 @@ export default class BaseComponent {
     this.idList = [
       'test_id',
       'img_id',
-      'static_id'
+      'static_id',
+      'shop_id'
     ]
     this.imgTypeList = ['shop', 'food', 'avatar', 'default']
     this.uploadImg = this.uploadImg.bind(this)

@@ -6,7 +6,7 @@ import chalk from 'chalk'
 
 const config = configLite(__dirname)
 
-mongoose.connect(config.mongodb)
+mongoose.connect(config.mongodb, { config: { autoIndex: false } })
 mongoose.Promise = global.Promise
 
 const db = mongoose.connection

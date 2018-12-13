@@ -19,7 +19,7 @@ class Statistic extends BaseComponent {
       }
       StaticModel.create(apiInfo)
     } catch (err) {
-      console.log(err.message || 'API记录出错')
+      console.log('API记录出错')
     }
     next()
   }

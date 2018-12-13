@@ -127,3 +127,39 @@
     }
 }
 ```
+
+
+### 5. 获取食品分类列表
+
+    type: GET
+
+    url: /shopping/category/all
+
+```javascript
+{
+    "status": 1,
+    "data": [
+        {
+            "id": 15,
+            "is_in_serving": true,
+            "description": "附近美食一网打尽",
+            "title": "美食",
+            "link": "url...",
+            "image_url": "/b/7e/d1890cf73ae6f2adb97caa39de7fcjpeg.jpeg",
+            "icon_url": "",
+            "title_color": ""
+        }
+    ]
+}
+```
+
+
+
+
+
+
+
+
+
+
+
