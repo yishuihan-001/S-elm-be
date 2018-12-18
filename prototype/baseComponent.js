@@ -18,7 +18,10 @@ export default class BaseComponent {
       'test_id',
       'img_id',
       'static_id',
-      'shop_id'
+      'shop_id',
+      'menu_id',
+      'food_id',
+      'item_id'
     ]
     this.imgTypeList = ['shop', 'food', 'avatar', 'default']
     this.uploadImg = this.uploadImg.bind(this)
@@ -66,7 +69,7 @@ export default class BaseComponent {
     return responseJson
   }
   // 获取id列表
-  async getId (type) {
+  async getId (type, num) {
     if (!this.idList.includes(type)) {
       throw new Error('id类型错误')
     }
@@ -79,7 +82,11 @@ export default class BaseComponent {
         }
         idData = await IdModel.create(newIdData)
       } else {
-        idData.value++
+        if (num) {
+          idData.value += num
+        } else {
+          idData.value++
+        }
         idData.save()
       }
       return idData.value
@@ -89,13 +96,16 @@ export default class BaseComponent {
   }
 
   async uploadImg (req, res, next) {
-    // let type = req.params.type
+    let image_path
     try {
-      // let image_path = await this.qiniu(req, type)
-      let image_path = await this.getPath(req)
-      res.send(Res.Success(image_path))
+      if (process.env.NODE_ENV === 'development') {
+        image_path = await this.getPath(req)
+      } else {
+        image_path = await this.qiniu(req)
+      }
+      return image_path
     } catch (err) {
-      res.send(Res.Fail(err.message || '上传图片失败'))
+      throw new Error(err.message || '图片上传失败-uploadImg')
     }
   }
 
@@ -137,7 +147,7 @@ export default class BaseComponent {
     })
   }
 
-  async qiniu (req, type = 'default') {
+  async qiniu (req) {
     return new Promise((resolve, reject) => {
       let form = formidable.IncomingForm()
       form.uploadDir = './public/img'

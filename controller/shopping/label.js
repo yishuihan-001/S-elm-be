@@ -1,16 +1,16 @@
 'use strict'
 
-import CategoryModel from '../../models/shopping/category'
+import LabelModel from '../../models/shopping/label'
 import AddressComponent from '../../prototype/addressComponent'
 import Validator from '../../lib/validator'
 import Ju from '../../lib/judge'
 import Res from '../../lib/res'
 
-class Category extends AddressComponent {
+class Label extends AddressComponent {
   constructor () {
     super()
     this.test = this.test.bind(this)
-    this.getAllCategory = this.getAllCategory.bind(this)
+    this.getAllLabel = this.getAllLabel.bind(this)
   }
 
   async test (req, res, next) {
@@ -21,14 +21,14 @@ class Category extends AddressComponent {
     }
   }
 
-  // 获取所有分类
-  async getAllCategory (req, res, next) {
+  // 获取所有属性标签
+  async getAllLabel (req, res, next) {
     try {
-      let categoryList = await CategoryModel.find({}, '-_id')
-      res.send(Res.Success(categoryList))
+      let activityList = await LabelModel.find({}, '-_id')
+      res.send(Res.Success(activityList))
     } catch (err) {
-      res.send(Res.Fail(err.message || '获取商品分类失败'))
+      res.send(Res.Fail(err.message || '获取配送方式失败'))
     }
   }
 }
-export default new Category()
+export default new Label()

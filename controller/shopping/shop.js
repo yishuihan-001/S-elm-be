@@ -1,10 +1,15 @@
 'use strict'
 
 import formidable from 'formidable'
+import CityModel from '../../models/city/city'
+import CategoryModel from '../../models/shopping/category'
 import ShopModel from '../../models/shopping/shop'
+import MenuModel from '../../models/shopping/menu'
+import FoodModel from '../../models/shopping/food'
 import LabelModel from '../../models/shopping/label'
 import DeliveryModel from '../../models/shopping/delivery'
 import ActivityModel from '../../models/shopping/activity'
+import RateModel from '../../models/shopping/rate'
 import AddressComponent from '../../prototype/addressComponent'
 import Validator from '../../lib/validator'
 import Ju from '../../lib/judge'
@@ -15,6 +20,10 @@ class Shop extends AddressComponent {
     super()
     this.test = this.test.bind(this)
     this.addShop = this.addShop.bind(this)
+    this.updateShop = this.updateShop.bind(this)
+    this.deleteShop = this.deleteShop.bind(this)
+    this.searchShop = this.searchShop.bind(this)
+    this.shopDetail = this.shopDetail.bind(this)
   }
 
   async test (req, res, next) {
@@ -45,7 +54,7 @@ class Shop extends AddressComponent {
         va.add(fields.phone, [{ rule: 'isEmpty', msg: '电话不能为空' }])
         va.add(fields.latitude, [{ rule: 'isEmpty', msg: '经度不能为空' }])
         va.add(fields.longitude, [{ rule: 'isEmpty', msg: '纬度不能为空' }])
-        va.add(fields.category, [{ rule: 'isEmpty', msg: '商铺分类不能为空' }])
+        va.add(fields.category_id, [{ rule: 'isEmpty', msg: '商铺种类不能为空' }])
         va.add(fields.image_path, [{ rule: 'isEmpty', msg: '商铺图片链接不能为空' }])
         va.add(fields.float_delivery_fee, [{ rule: 'isEmpty', msg: '配送费不能为空' }])
         va.add(fields.float_minimum_order_amount, [{ rule: 'isEmpty', msg: '起送价不能为空' }])
@@ -61,26 +70,20 @@ class Shop extends AddressComponent {
           phone: +fields.phone,
           latitude: +fields.latitude,
           longitude: +fields.longitude,
-          category: +fields.category,
+          category_id: +fields.category_id,
           image_path: fields.image_path,
           float_delivery_fee: +fields.float_delivery_fee,
           float_minimum_order_amount: +fields.float_minimum_order_amount,
           description: fields.description || '客户您好，欢迎光临！',
           promotion_info: fields.promotion_info || '欢迎光临，用餐高峰请提前下单，谢谢',
-          // is_pin: fields.is_pin || false,
-          // is_bao: fields.is_bao || false,
-          // is_new: fields.is_new || false,
-          // is_piao: fields.is_piao || false,
-          // is_fu: fields.is_fu || false,
-          // is_zhun: fields.is_zhun || false,
           startTime: fields.startTime || '8:30',
           endTime: fields.endTime || '21:30',
           business_license_image: fields.business_license_image || 'http://f0.jmstatic.com/btstatic/h5/index/bg_logo_1_1.jpg',
           catering_service_license_image: fields.catering_service_license_image || 'http://f0.jmstatic.com/btstatic/h5/index/bg_logo_1_1.jpg',
-          rating: fields.rating || (Math.random() * 5).toFixed(1),
-          rating_count: fields.rating_count || Math.round(Math.random() * 10),
-          recent_order_num: fields.recent_order_num || Math.round(Math.random() * 100),
-          status: fields.status || Math.ceil(Math.random() * 10) > 5 ? 1 : 0,
+          rating: +fields.rating || (Math.random() * 5).toFixed(1),
+          rating_count: +fields.rating_count || Math.round(Math.random() * 10),
+          recent_order_num: +fields.recent_order_num || Math.round(Math.random() * 100),
+          status: +fields.status || Math.ceil(Math.random() * 10) > 5 ? 1 : 0,
           labels: fields.labels || [],
           delivery_mode: fields.delivery_mode || [],
           activities: fields.activities || []
@@ -110,9 +113,9 @@ class Shop extends AddressComponent {
             let deliveryData = await DeliveryModel.find({}, '-_id')
             let newdelivery = []
             newShop.delivery_mode.forEach(item => {
-              deliveryData.forEach(labelItem => {
-                if (item === labelItem.id) {
-                  newdelivery.push(labelItem)
+              deliveryData.forEach(deliveryItem => {
+                if (item === deliveryItem.id) {
+                  newdelivery.push(deliveryItem)
                 }
               })
             })
@@ -124,12 +127,296 @@ class Shop extends AddressComponent {
           throw new Error('请至少选择一种配送方式')
         }
 
-        let resObj = await ShopModel.create(newShop)
-        res.send(Res.Success(resObj))
+        // 获取商铺活动
+        if (newShop.activities.length) {
+          try {
+            let activityData = await ActivityModel.find({}, '-_id')
+            let newActivities = []
+            newShop.activities.forEach(item => {
+              activityData.forEach(activitylItem => {
+                if (item === activitylItem.id) {
+                  newActivities.push(activitylItem)
+                }
+              })
+            })
+            newShop.activities = newActivities
+          } catch (err) {
+            return res.send(Res.Fail(err.message || '获取标签信息失败'))
+          }
+        }
+
+        await ShopModel.create(newShop)
+        await RateModel.initData(shop_id)
+        res.send(Res.Success('商铺添加成功'))
       } catch (err) {
         res.send(Res.Fail(err.message || '商铺添加失败'))
       }
     })
+  }
+
+  // 更新商铺
+  async updateShop (req, res, next) {
+    const form = new formidable.IncomingForm()
+    form.parse(req, async (err, fields, files) => {
+      if (err) return res.send(Res.Fail('formidable 初始化失败'))
+      let { id, name, address, phone, category_id, image_path, latitude, longitude } = fields
+      try {
+        let va = new Validator()
+        va.add(id, [{ rule: 'isEmpty', msg: '商铺id不能为空' }])
+        va.add(name, [{ rule: 'isEmpty', msg: '商铺名称不能为空' }])
+        va.add(address, [{ rule: 'isEmpty', msg: '商铺地址不能为空' }])
+        va.add(phone, [{ rule: 'isEmpty', msg: '电话不能为空' }])
+        va.add(category_id, [{ rule: 'isEmpty', msg: '商铺分类不能为空' }])
+        va.add(image_path, [{ rule: 'isEmpty', msg: '商铺图片链接不能为空' }])
+        let vaResult = va.start()
+        if (vaResult) {
+          throw new Error(vaResult)
+        }
+
+        let updateData
+        if (latitude && longitude) {
+          updateData = { id, name, address, phone, category_id, image_path, latitude, longitude }
+        } else {
+          updateData = { id, name, address, phone, category_id, image_path }
+        }
+
+        let targetShop = await ShopModel.findOne({ id: updateData.id })
+        let targetCategory = await CategoryModel.findOne({ id: updateData.category_id })
+        if (!targetShop) {
+          throw new Error('该商铺不存在')
+        } else if (!targetCategory) {
+          throw new Error('该商铺种类不存在')
+        }
+
+        await ShopModel.findOneAndUpdate({ id }, { $set: updateData })
+        res.send(Res.Success('商铺信息修改成功'))
+      } catch (err) {
+        res.send(Res.Fail(err.message || '商铺信息更新失败'))
+      }
+    })
+  }
+
+  // 删除商铺
+  async deleteShop (req, res, next) {
+    let restaurant_id = +req.params.id
+    if (Ju.isEmpty(restaurant_id)) {
+      return res.send(Res.Fail('商铺id不能为空'))
+    }
+
+    let targetShop = await ShopModel.findOne({ id: restaurant_id })
+    if (!targetShop) {
+      return res.send(Res.Fail('该商铺不存在'))
+    }
+
+    try {
+      await Promise.all([
+        await ShopModel.remove({ id: restaurant_id }),
+        await MenuModel.remove({ restaurant_id: restaurant_id }),
+        await FoodModel.remove({ restaurant_id: restaurant_id })
+      ])
+      res.send(Res.Success('商铺删除成功'))
+    } catch (err) {
+      res.send(Res.Fail(err.message || '删除商铺失败'))
+    }
+  }
+
+  // 删除商铺
+  // step 1 删除商铺
+  async deleteShopOne (id) {
+    let resObj = await ShopModel.remove({ id: id })
+    return resObj
+  }
+  // step 2 删除分类
+  async deleteShopTwo (id) {
+    let resObj = await MenuModel.remove({ restaurant_id: id })
+    return resObj
+  }
+  // step 1 删除食品
+  async deleteShopThree (id) {
+    let resObj = await FoodModel.remove({ restaurant_id: id })
+    return resObj
+  }
+
+  // 搜索商铺
+  async searchShop (req, res, next) {
+    let { lng, lat, keyword, cityId } = req.query
+
+    try {
+      let va = new Validator()
+      va.add(lng, [{ rule: 'isEmpty', msg: '经度信息不能为空' }])
+      va.add(lat, [{ rule: 'isEmpty', msg: '纬度信息不能为空' }])
+      va.add(keyword, [{ rule: 'isEmpty', msg: '搜索关键词不能为空' }])
+      let vaResult = va.start()
+      if (vaResult) {
+        throw new Error(vaResult)
+      }
+    } catch (err) {
+      return res.send(Res.Fail(err.message || '参数错误'))
+    }
+
+    try {
+      let searchList = await ShopModel.find({ name: eval('/' + keyword + '/gi') }, '-_id').limit(50).lean()
+      let newSearchList = []
+      if (searchList.length) {
+        let from = lat + ',' + lng
+        let to = ''
+        // 获取百度地图测局所需经度纬度
+        searchList.forEach((item, index) => {
+          const slpitStr = (index === searchList.length - 1) ? '' : '|'
+          to += item.latitude + ',' + item.longitude + slpitStr
+        })
+        // 获取距离信息，并合并到数据中
+        let distance_duration = await this.getDistance(from, to)
+        newSearchList = searchList.map((item, index) => {
+          return Object.assign(item, distance_duration[index])
+        })
+        res.send(Res.Success(newSearchList))
+      } else {
+        await this.createShopBeforeSearch(req, res, next, keyword, cityId)
+      }
+    } catch (err) {
+      res.send(Res.Fail(err.message || '搜索失败'))
+    }
+  }
+
+  // 搜索前创建商铺
+  async createShopBeforeSearch (req, res, next, keyword, cityId) {
+    let guessCityInfo
+    if (Ju.isEmpty(cityId)) {
+      try {
+        guessCityInfo = await this.guessCity(req)
+      } catch (err) {
+        return res.send(Res.Fail(err.message || '搜索创建商铺时定位失败'))
+      }
+    } else {
+      try {
+        guessCityInfo = await CityModel.cityById(+cityId)
+      } catch (err) {
+        return res.send(Res.Fail(err.message || '搜索创建商铺时通过id查找城市失败'))
+      }
+    }
+
+    let searchData
+    let adjustData = []
+    let fooId
+    let categoryList
+    let categoryIdList = []
+
+    try {
+      searchData = await this.searchPlace(keyword, guessCityInfo.city || guessCityInfo.name)
+    } catch (err) {
+      return res.send(Res.Fail(err.message || '搜索失败'))
+    }
+    fooId = await this.getId('item_id', searchData.length)
+    fooId -= searchData.length
+
+    try {
+      categoryList = await CategoryModel.find({})
+    } catch (err) {
+      return res.send(Res.Fail(err.message || '商铺id查找失败'))
+    }
+
+    categoryList.forEach(item => {
+      categoryIdList.push(item.id)
+    })
+
+    let labelsArr = []
+    let deliveryArr = []
+    let activityArr = []
+
+    try {
+      let labelData = await LabelModel.find({}, '-_id')
+      for (let item of searchData) {
+        let labelNum = Math.floor((Math.random() * Math.ceil(labelData.length / 2)))
+        let labelObj = []
+        for (let i = 0; i < labelNum; i++) {
+          labelObj.push(labelData[Math.floor((Math.random() * labelData.length))])
+        }
+        labelsArr.push(labelObj)
+      }
+    } catch (err) {
+      return res.send(Res.Fail(err.message || '获取标签信息失败'))
+    }
+
+    try {
+      let deliveryData = await DeliveryModel.find({}, '-_id')
+      for (let item of searchData) {
+        let deliveryNum = Math.floor((Math.random() * deliveryData.length))
+        let deliveryObj = []
+        for (let i = 0; i < deliveryNum; i++) {
+          deliveryObj.push(deliveryData[Math.floor((Math.random() * deliveryData.length))])
+        }
+        deliveryArr.push(deliveryObj)
+      }
+    } catch (err) {
+      return res.send(Res.Fail(err.message || '获取配送信息失败'))
+    }
+
+    try {
+      let activityData = await ActivityModel.find({}, '-_id')
+      for (let item of searchData) {
+        let activityNum = Math.floor((Math.random() * Math.ceil(activityData.length / 2)))
+        let activityObj = []
+        for (let i = 0; i < activityNum; i++) {
+          activityObj.push(activityData[Math.floor((Math.random() * activityData.length))])
+        }
+        activityArr.push(activityObj)
+      }
+    } catch (err) {
+      return res.send(Res.Fail(err.message || '获取配送信息失败'))
+    }
+
+    searchData.forEach((item, index) => {
+      adjustData.push({
+        id: fooId + index + 1,
+        name: item.title,
+        address: item.address,
+        phone: item.tel,
+        latitude: +item.location.lat,
+        longitude: +item.location.lng,
+        category_id: categoryIdList[Math.floor((Math.random() * 16))],
+        image_path: 'http://f0.jmstatic.com/btstatic/h5/index/bg_logo_1_1.jpg',
+        float_delivery_fee: Math.floor((Math.random() * 15)) + 5,
+        float_minimum_order_amount: Math.floor((Math.random() * 100)) + 20,
+        description: '客户您好，欢迎光临！',
+        promotion_info: '欢迎光临，用餐高峰请提前下单，谢谢',
+        startTime: '8:30',
+        endTime: '21:30',
+        business_license_image: 'http://f0.jmstatic.com/btstatic/h5/index/bg_logo_1_1.jpg',
+        catering_service_license_image: 'http://f0.jmstatic.com/btstatic/h5/index/bg_logo_1_1.jpg',
+        rating: (Math.random() * 5).toFixed(1),
+        rating_count: Math.round(Math.random() * 10),
+        recent_order_num: Math.round(Math.random() * 100),
+        status: Math.ceil(Math.random() * 10) > 5 ? 1 : 0,
+        labels: labelsArr[index],
+        delivery_mode: deliveryArr[index],
+        activities: activityArr[index]
+      })
+    })
+    adjustData.forEach(async item => {
+      await ShopModel.create(item)
+      await RateModel.initData(item.id)
+    })
+    res.send(Res.Fail('服务器繁忙，请重试'))
+  }
+
+  // 商铺详情
+  async shopDetail (req, res, next) {
+    let id = req.params.id
+    if (Ju.isEmpty(id)) {
+      return res.send(res.Fail('商铺id不能为空'))
+    }
+
+    try {
+      let targetShop = await ShopModel.findOne({ id }, '-_id')
+      if (!targetShop) {
+        res.send(Res.Fail('该商铺不存在'))
+      } else {
+        res.send(Res.Success(targetShop))
+      }
+    } catch (err) {
+      res.send(res.Fail(err.message || '获取商铺详情失败'))
+    }
   }
 }
 export default new Shop()

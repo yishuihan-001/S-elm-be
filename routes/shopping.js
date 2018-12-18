@@ -2,15 +2,38 @@
 
 import express from 'express'
 import Category from '../controller/shopping/category'
+import Delivery from '../controller/shopping/delivery'
+import Activity from '../controller/shopping/activity'
+import Label from '../controller/shopping/label'
 import Food from '../controller/shopping/food'
 import Shop from '../controller/shopping/shop'
+import Menu from '../controller/shopping/menu'
+import Rate from '../controller/shopping/rate'
 
 const router = express.Router()
 
 router.get('/test', Category.test) // 测试
-router.get('/category/all', Category.getAllCategory) // 获取所有食品分类
-router.get('/food/test', Food.test) // 测试
-router.get('/shop/test', Shop.test) // 测试
+
+router.get('/category/all', Category.getAllCategory) // 获取所有商品分类
+router.get('/delivery/all', Delivery.getAllDelivery) // 获取所有配送方式
+router.get('/activity/all', Activity.getAllActivity) // 获取所有商家活动
+router.get('/label/all', Label.getAllLabel) // 获取所有商家属性标签
+
+router.post('/food/addFood', Food.addFood) // 添加商品
+router.post('/food/updateFood', Food.updateFood) // 更新商品
+router.delete('/food/deleteFood/:id', Food.deleteFood) // 删除商品
+
 router.post('/shop/addShop', Shop.addShop) // 添加商铺
+router.post('/shop/updateShop', Shop.updateShop) // 更新商铺
+router.delete('/shop/deleteShop/:id', Shop.deleteShop) // 删除商铺
+router.get('/shop/search', Shop.searchShop) // 搜索商铺
+router.get('/shop/detail/:id', Shop.shopDetail) // 获取商铺详情
+
+router.post('/menu/addMenu', Menu.addMenu) // 添加商品分类
+router.get('/menu/getMenu/:id', Menu.getMenu) // 获取商品分类
+
+router.get('/rate/getRatings/:id', Rate.getRatings) // 获取评价信息
+router.get('/rate/getScores/:id', Rate.getScores) // 获取评价分数
+router.get('/rate/getTags/:id', Rate.getTags) // 获取评价标签
 
 export default router

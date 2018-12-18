@@ -2,6 +2,8 @@
 
 import pinyin from 'pinyin'
 import CityModel from '../../models/city/city'
+import ShopModel from '../../models/shopping/shop'
+import CategoryModel from '../../models/shopping/category'
 import AddressComponent from '../../prototype/addressComponent'
 import Validator from '../../lib/validator'
 import Ju from '../../lib/judge'
@@ -15,6 +17,7 @@ class City extends AddressComponent {
     this.getCityById = this.getCityById.bind(this)
     this.search = this.search.bind(this)
     this.getPosiByGeo = this.getPosiByGeo.bind(this)
+    this.createShop = this.createShop.bind(this)
   }
 
   async test (req, res, next) {
@@ -131,6 +134,81 @@ class City extends AddressComponent {
     } catch (err) {
       res.send(Res.Fail(err.message || '根据经纬度获取地址信息失败'))
     }
+  }
+
+  // 创建商铺
+  async createShop (req, res, next) {
+    let { cityId, keyword } = req.query
+
+    try {
+      let va = new Validator()
+      va.add(cityId, [{ rule: 'isEmpty', msg: '城市id不正确' }])
+      va.add(keyword, [{ rule: 'isEmpty', msg: '缺少关键词' }])
+      let vaResult = va.start()
+      if (vaResult) {
+        throw new Error(vaResult)
+      }
+    } catch (err) {
+      return res.send(Res.Fail(err.message || '参数错误'))
+    }
+
+    let searchData
+    let adjustData = []
+    let fooId
+    let categoryList
+    let categoryIdList = []
+
+    try {
+      let cityInfo = await CityModel.cityById(cityId)
+      searchData = await this.searchPlace(keyword, cityInfo.name)
+    } catch (err) {
+      return res.send(Res.Fail(err.message || '搜索失败'))
+    }
+    fooId = await this.getId('item_id', searchData.length)
+    fooId -= searchData.length
+
+    try {
+      categoryList = await CategoryModel.find({})
+    } catch (err) {
+      return res.send(Res.Fail(err.message || '商铺id查找失败'))
+    }
+
+    categoryList.forEach(item => {
+      categoryIdList.push(item.id)
+    })
+
+    searchData.forEach((item, index) => {
+      adjustData.push({
+        id: fooId + index + 1,
+        name: item.title,
+        address: item.address,
+        phone: item.tel,
+        latitude: +item.location.lat,
+        longitude: +item.location.lng,
+        category_id: categoryIdList[Math.floor((Math.random() * 16))],
+        image_path: 'http://f0.jmstatic.com/btstatic/h5/index/bg_logo_1_1.jpg',
+        float_delivery_fee: Math.floor((Math.random() * 15)) + 5,
+        float_minimum_order_amount: Math.floor((Math.random() * 100)) + 20,
+        description: '客户您好，欢迎光临！',
+        promotion_info: '欢迎光临，用餐高峰请提前下单，谢谢',
+        startTime: '8:30',
+        endTime: '21:30',
+        business_license_image: 'http://f0.jmstatic.com/btstatic/h5/index/bg_logo_1_1.jpg',
+        catering_service_license_image: 'http://f0.jmstatic.com/btstatic/h5/index/bg_logo_1_1.jpg',
+        rating: (Math.random() * 5).toFixed(1),
+        rating_count: Math.round(Math.random() * 10),
+        recent_order_num: Math.round(Math.random() * 100),
+        status: Math.ceil(Math.random() * 10) > 5 ? 1 : 0,
+        labels: [],
+        delivery_mode: [],
+        activities: []
+      })
+    })
+
+    adjustData.forEach(async item => {
+      await ShopModel.create(item)
+    })
+    res.send(Res.Success('搜索商铺添加成功'))
   }
 }
 export default new City()

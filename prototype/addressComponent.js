@@ -70,7 +70,7 @@ class AddressComponent extends BaseComponent {
             key: this.tencentkey,
             keyword: encodeURIComponent(keyword),
             boundary: 'region(' + encodeURIComponent(cityName) + ',0)',
-            page_size: 20
+            page_size: 3
           }
         )
         if (resObj.status === 0) {
@@ -84,7 +84,24 @@ class AddressComponent extends BaseComponent {
     })
   }
   // 测量距离
-  async getDistance (from, to, type) {
+  async getDistance (from, to) {
+    /**
+     * from: 40.07135,116.32081|39.83532,116.37118
+     * to: 40.063597,116.364973|38.947508,116.97413
+     * 百度地图测距参数释疑
+     * 起点和终点经纬度坐标用|分隔，如上，以两层循环方式测距
+     * 返回值
+     * [{
+     *  "distance": {
+     *    "text": "157.7公里",
+     *    "value": 157742
+     *  }
+     *  "duration": {
+     *    "text": "1.6小时",
+     *    "value": 5915
+     *  }
+     * }]
+     */
     return new Promise(async (resolve, reject) => {
       try {
         let resObj
@@ -109,13 +126,16 @@ class AddressComponent extends BaseComponent {
           )
         }
         if (resObj.status === 0) {
-          let resData = resObj.result[0]
-          if (type === 'distance') {
-            resData = resObj.result[0].distance
-          } else if (type === 'duration') {
-            resData = resObj.result[0].duration
-          }
-          resolve(resData)
+          let resArr = []
+          resObj.result.forEach(item => {
+            resArr.push({
+              distanceText: item.distance.text,
+              distanceValue: item.distance.value,
+              durationText: item.duration.text,
+              durationValue: item.duration.value
+            })
+          })
+          resolve(resArr)
         } else {
           throw new Error('调用百度地图测距失败')
         }
