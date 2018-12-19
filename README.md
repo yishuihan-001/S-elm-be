@@ -154,6 +154,84 @@
 ```
 
 
+### 6. 获取商铺列表
+
+    type: POST
+
+    url: /shopping/shop/getList
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| category_id | Y | Number | 种类id |
+| latitude | Y | Number | 纬度 |
+| longitude | Y | Number | 经度 |
+| offset | N | Number | 索引(从0开始) |
+| limit | N | Number | 返回条数 |
+| order_by | N | Number | 见tip |
+| delivery_mode | N | Array | 支持的配送方式id |
+| activities | N | Array | 支持的配送方式id |
+
+> tip: order_by类型
+1 起送价
+2 评分
+3 销量
+4 配送距离
+5 配送时间
+
+
+```javascript
+{
+    "status": 1,
+    "data": [
+        {
+            "description": "客户您好，欢迎光临！",
+            "promotion_info": "欢迎光临，用餐高峰请提前下单，谢谢",
+            "rating": 2.5,
+            "rating_count": 0,
+            "recent_order_num": 72,
+            "status": 0,
+            "id": 495,
+            "name": "Hi辣朝阳大悦城店",
+            "address": "北京市朝阳区朝阳北路101号朝阳大悦城7楼15B",
+            "phone": "010-85511488",
+            "latitude": 39.924699,
+            "longitude": 116.518312,
+            "category_id": 15,
+            "image_path": "http://f0.jmstatic.com/btstatic/h5/index/bg_logo_1_1.jpg",
+            "float_delivery_fee": 10,
+            "float_minimum_order_amount": 58,
+            "startTime": "8:30",
+            "endTime": "21:30",
+            "business_license_image": "http://f0.jmstatic.com/btstatic/h5/index/bg_logo_1_1.jpg",
+            "catering_service_license_image": "http://f0.jmstatic.com/btstatic/h5/index/bg_logo_1_1.jpg",
+            "labels": [],
+            "delivery_mode": [
+                {
+                    "_id": "5c19e06ad8d55f051f09761b",
+                    "id": 2,
+                    "color": "fe4070",
+                    "is_solid": true,
+                    "text": "京东到家"
+                }
+            ],
+            "activities": [
+                {
+                    "_id": "5c19e06ad8d55f051f09761e",
+                    "id": 9,
+                    "keyword": "网",
+                    "description": "网红食品，大胆尝鲜"
+                }
+            ],
+            "distanceText": "10.6公里",
+            "distanceValue": 10613,
+            "durationText": "7分钟",
+            "durationValue": 397
+        }
+    ]
+}
+```
+
+
 ### 7. 搜索商家
 
     type: GET
@@ -636,6 +714,75 @@
             "name": "不满意"
         }
     ]
+}
+```
+
+
+### 20. 加入购物车(创建结算信息)
+
+    type: POST
+
+    url: /order/account/create
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| restaurant_id | Y | Number | 商铺id |
+| deliver_fee | Y | Number | 配送费 |
+| keyword | Y | Number | 关键词 |
+| extra | N | Object | 打包信息 |
+| manifest | Y | Array | 结算清单 |
+
+> tip
+(1) extra格式
+"extra": {
+	"name": "餐盒费",
+	"price": 7,
+	"quantity": 99
+}
+(2) manifest格式
+"manifest": [{
+	"food_id": 68,
+	"item_id": 562,
+	"name": "商铺111-分类1-凉皮1",
+	"price": 999,
+	"quantity": 2,
+	"packing_fee": 7,
+	"label": "特大" // 选填，其他必填
+}]
+
+```javascript
+{
+    "status": 1,
+    "data": "结算信息创建成功"
+}
+```
+
+
+### 30. 下单
+
+    type: POST
+
+    url: /order/indent/create
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| account_id | Y | Number | 结算信息id |
+| address_id | Y | Number | 地址id |
+| restaurant_id | Y | Number | 商铺id |
+| hongbao | N | Number | 红包额 |
+| pay_type | N | Number | 支付方式 |
+| remarks | N | Array | 备注 |
+| self_remarks | N | String | 自定义备注 |
+| need_invoice | N | Boolean | 发票 |
+| invoice | N | String | 发票抬头 |
+
+> tip：remarks格式
+remarks: [1, 2, 3]
+
+```javascript
+{
+    "status": 1,
+    "message": "订单创建成功"
 }
 ```
 

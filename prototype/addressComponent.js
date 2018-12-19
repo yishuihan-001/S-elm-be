@@ -70,7 +70,7 @@ class AddressComponent extends BaseComponent {
             key: this.tencentkey,
             keyword: encodeURIComponent(keyword),
             boundary: 'region(' + encodeURIComponent(cityName) + ',0)',
-            page_size: 3
+            page_size: 20
           }
         )
         if (resObj.status === 0) {

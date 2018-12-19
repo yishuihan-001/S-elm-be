@@ -28,6 +28,7 @@ router.post('/shop/updateShop', Shop.updateShop) // 更新商铺
 router.delete('/shop/deleteShop/:id', Shop.deleteShop) // 删除商铺
 router.get('/shop/search', Shop.searchShop) // 搜索商铺
 router.get('/shop/detail/:id', Shop.shopDetail) // 获取商铺详情
+router.post('/shop/getList', Shop.getList) // 获取商铺列表
 
 router.post('/menu/addMenu', Menu.addMenu) // 添加商品分类
 router.get('/menu/getMenu/:id', Menu.getMenu) // 获取商品分类

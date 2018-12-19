@@ -24,6 +24,7 @@ class Shop extends AddressComponent {
     this.deleteShop = this.deleteShop.bind(this)
     this.searchShop = this.searchShop.bind(this)
     this.shopDetail = this.shopDetail.bind(this)
+    this.getList = this.getList.bind(this)
   }
 
   async test (req, res, next) {
@@ -416,6 +417,146 @@ class Shop extends AddressComponent {
       }
     } catch (err) {
       res.send(res.Fail(err.message || '获取商铺详情失败'))
+    }
+  }
+
+  // 商铺列表
+  async getList (req, res, next) {
+    const form = new formidable.IncomingForm()
+    form.parse(req, async (err, fields, files) => {
+      if (err) return res.send(Res.Fail('formidable 初始化失败'))
+      let { category_id, latitude, longitude, offset = 0, limit = 20, order_by, delivery_mode = [], activities = [] } = fields
+
+      try {
+        let va = new Validator()
+        va.add(category_id, [{ rule: 'isEmpty', msg: '分类id不能为空' }])
+        va.add(latitude, [{ rule: 'isEmpty', msg: '经度不能为空' }])
+        va.add(longitude, [{ rule: 'isEmpty', msg: '纬度不能为空' }])
+        let vaResult = va.start()
+        if (vaResult) {
+          throw new Error(vaResult)
+        }
+      } catch (err) {
+        return res.send(Res.Fail(err.message || '获取商铺列表失败'))
+      }
+
+      try {
+        let targetCategory = await CategoryModel.find({ id: +category_id })
+        if (!targetCategory) {
+          throw new Error('该分类不存在')
+        }
+      } catch (err) {
+        return res.send(Res.Fail(err.message || '请检查分类id'))
+      }
+
+      let filter = { category_id }
+      let sortBy = {}
+      if (Number(order_by)) {
+        switch (Number(order_by)) {
+          case 1: // 起送价
+            Object.assign(sortBy, { float_minimum_order_amount: 1 })
+            break
+          case 2: // 评分
+            Object.assign(sortBy, { rating: -1 })
+            break
+          case 3: // 销量
+            Object.assign(sortBy, { recent_order_num: -1 })
+            break
+          default:
+            break
+        }
+      }
+
+      // 支持的配送方式
+      if (delivery_mode.length) {
+        Object.assign(filter, { 'delivery_mode.id': { $in: delivery_mode } })
+      }
+
+      // 支持的活动
+      if (activities.length) {
+        Object.assign(filter, { 'activities.id': { $all: activities } })
+      }
+
+      try {
+        let shopList = await ShopModel.find(filter, '-_id').sort(sortBy).limit(Number(limit)).skip(Number(offset)).lean()
+        let from = latitude + ',' + longitude
+        let to = ''
+        // 获取百度地图测局所需经度纬度
+        shopList.forEach((item, index) => {
+          const slpitStr = (index === shopList.length - 1) ? '' : '|'
+          to += item.latitude + ',' + item.longitude + slpitStr
+        })
+
+        let allIn = true
+        if (shopList.length) {
+          try {
+            let distanceArr = await this.getDistance(from, to)
+            shopList.forEach((item, index) => {
+              Object.assign(item, distanceArr[index])
+            })
+          } catch (err) {
+            allIn = false
+            shopList.forEach((item, index) => {
+              Object.assign(item, {
+                distanceText: '未知',
+                distanceValue: '未知',
+                durationText: '未知',
+                durationValue: '未知'
+              })
+            })
+          }
+        }
+
+        if (allIn) {
+          switch (Number(order_by)) {
+            case 4: // 配送距离
+              shopList = shopList.sort(this.compare('distanceValue'))
+              break
+            case 5: // 配送时间
+              shopList = shopList.sort(this.compare('durationValue'))
+              break
+            default:
+              break
+          }
+        }
+
+        // let amountArr = []
+        // let ratingArr = []
+        // let numArr = []
+        // let distanceArr = []
+        // let durationArr = []
+        // shopList.forEach(item => {
+        //   amountArr.push(item.float_minimum_order_amount)
+        //   ratingArr.push(item.rating)
+        //   numArr.push(item.recent_order_num)
+        //   distanceArr.push(item.distanceValue)
+        //   durationArr.push(item.durationValue)
+        // })
+        // console.log(amountArr)
+        // console.log(ratingArr)
+        // console.log(numArr)
+        // console.log(distanceArr)
+        // console.log(durationArr)
+        console.log(shopList.length)
+        res.send(Res.Success(shopList))
+      } catch (err) {
+        res.send(Res.Fail(err.message || '获取商铺列表失败'))
+      }
+    })
+  }
+
+  // 属性排序方式
+  compare (pro) {
+    return function (obj1, obj2) {
+      var val1 = obj1[pro]
+      var val2 = obj2[pro]
+      if (val1 > val2) {
+        return 1
+      } else if (val1 < val2) {
+        return -1
+      } else {
+        return 0
+      }
     }
   }
 }
