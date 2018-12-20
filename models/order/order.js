@@ -15,6 +15,7 @@ const orderSchema = new mongoose.Schema(
     self_remarks: String,
     need_invoice: { type: Boolean, required: true },
     invoice: { type: String, default: '自定义发票' },
+    status: { type: Number, required: true },
 
     create_time: { type: Number, required: true },
     due_time: { type: Number, required: true },

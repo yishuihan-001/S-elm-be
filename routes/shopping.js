@@ -5,6 +5,7 @@ import Category from '../controller/shopping/category'
 import Delivery from '../controller/shopping/delivery'
 import Activity from '../controller/shopping/activity'
 import Label from '../controller/shopping/label'
+import Remark from '../controller/shopping/remark'
 import Food from '../controller/shopping/food'
 import Shop from '../controller/shopping/shop'
 import Menu from '../controller/shopping/menu'
@@ -18,6 +19,7 @@ router.get('/category/all', Category.getAllCategory) // 获取所有商品分类
 router.get('/delivery/all', Delivery.getAllDelivery) // 获取所有配送方式
 router.get('/activity/all', Activity.getAllActivity) // 获取所有商家活动
 router.get('/label/all', Label.getAllLabel) // 获取所有商家属性标签
+router.get('/remark/all', Remark.getAllRemark) // 获取所有备注标签
 
 router.post('/food/addFood', Food.addFood) // 添加商品
 router.post('/food/updateFood', Food.updateFood) // 更新商品

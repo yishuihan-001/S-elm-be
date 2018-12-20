@@ -14,6 +14,8 @@ class Order extends AddressComponent {
     super()
     this.test = this.test.bind(this)
     this.create = this.create.bind(this)
+    this.list = this.list.bind(this)
+    this.detail = this.detail.bind(this)
   }
 
   async test (req, res, next) {
@@ -85,6 +87,7 @@ class Order extends AddressComponent {
           self_remarks,
           need_invoice,
           invoice,
+          status: 0,
           create_time: new Date().getTime(),
           due_time: new Date().getTime() + 15 * 60 * 1000,
           restaurant_name: restaurant_info.name,
@@ -101,6 +104,53 @@ class Order extends AddressComponent {
         res.send(Res.Fail(err.message || '订单创建失败'))
       }
     })
+  }
+
+  // 获取订单列表
+  async list (req, res, next) {
+    let userId = req.session.UID || 1
+    if (!userId) {
+      return res.send(Res.Fail('你还没有登录哦'))
+    }
+    let { offset = 0, limit = 20 } = req.query
+    try {
+      let orderList = await OrderModel.find({ user_id: userId }, '-_id').sort({ id: -1 }).skip(+offset).limit(+limit).lean()
+      orderList.forEach(item => {
+        if (new Date().getTime() > item.due_time) {
+          item.status = -1
+          item.statusTitle = '支付超时'
+        } else {
+          item.status = 0
+          item.statusTitle = '等待支付'
+        }
+        // item.save()
+      })
+      res.send(Res.Success(orderList))
+    } catch (err) {
+      res.send(Res.Fail(err.message || '订单列表获取失败'))
+    }
+  }
+
+  // 获取订单详情
+  async detail (req, res, next) {
+    let userId = req.session.UID || 1
+    if (!userId) {
+      return res.send(Res.Fail('你还没有登录哦'))
+    }
+
+    let orderId = req.params.id
+    if (Ju.isEmpty(orderId)) {
+      return res.send(Res.Fail('请输入订单id'))
+    }
+    try {
+      let orderDetail = await OrderModel.findOne({ id: orderId }, '-_id')
+      if (!orderDetail) {
+        throw new Error('该订单不存在，请核查订单id是否正确')
+      }
+      res.send(Res.Success(orderDetail))
+    } catch (err) {
+      res.send(Res.Fail(err.message || '订单详情获取失败'))
+    }
   }
 }
 

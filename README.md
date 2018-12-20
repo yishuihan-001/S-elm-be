@@ -758,6 +758,37 @@
 ```
 
 
+### 21. 获取备注信息
+
+    type: GET
+
+    url: /shopping/remark/all
+
+```javascript
+{
+    "status": 1,
+    "data": [
+        [
+            {
+                "id": 1,
+                "label": "不要辣"
+            },
+            {
+                "id": 2,
+                "label": "少点辣"
+            }
+        ],
+        [
+            {
+                "id": 3,
+                "label": "多点辣"
+            }
+        ]
+    ]
+}
+```
+
+
 ### 30. 下单
 
     type: POST
@@ -783,6 +814,130 @@ remarks: [1, 2, 3]
 {
     "status": 1,
     "message": "订单创建成功"
+}
+```
+
+
+### 31. 获取订单列表
+
+    type: GET
+
+    url: /order/indent/list
+
+```javascript
+{
+    "status": 1,
+    "data": [
+        {
+            "extra": {
+                "name": "餐盒费",
+                "price": 7,
+                "quantity": 99
+            },
+            "hongbao": 99,
+            "pay_type": 1,
+            "remarks": [
+                1,
+                2,
+                3
+            ],
+            "invoice": "天津西瑞尔",
+            "id": 6,
+            "user_id": 1,
+            "account_id": 5,
+            "address_id": 1,
+            "restaurant_id": 34,
+            "self_remarks": "多放醋",
+            "need_invoice": true,
+            "create_time": 1545228138176,
+            "due_time": 1545229038176,
+            "restaurant_name": "商铺111",
+            "restaurant_image_url": "http://pjchsh1l8.bkt.clouddn.com/1679d83003420.jpeg",
+            "total_price": 4425,
+            "deliver_fee": 25,
+            "manifest": [
+                {
+                    "packing_fee": 7,
+                    "_id": "5c1a35ff63487f0a54a667b4",
+                    "food_id": 68,
+                    "item_id": 562,
+                    "name": "商铺111-分类1-凉皮1",
+                    "price": 999,
+                    "quantity": 2,
+                    "label": "特大"
+                },
+                {
+                    "packing_fee": 7,
+                    "_id": "5c1a35ff63487f0a54a667b3",
+                    "food_id": 68,
+                    "item_id": 563,
+                    "name": "商铺111-分类1-凉皮1",
+                    "price": 897,
+                    "quantity": 2,
+                    "label": "大"
+                }
+            ],
+            "status": -1,
+            "statusTitle": "支付超时"
+        }
+    ]
+}
+```
+
+
+### 32. 订单详情
+
+    type: GET
+
+    url: /order/indent/detail/:id
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| id | Y | Number | 订单id |
+
+```javascript
+{
+    "status": 1,
+    "data": {
+        "extra": {
+            "name": "餐盒费",
+            "price": 7,
+            "quantity": 99
+        },
+        "hongbao": 99,
+        "pay_type": 1,
+        "remarks": [
+            1,
+            2,
+            3
+        ],
+        "invoice": "天津西瑞尔",
+        "id": 5,
+        "user_id": 1,
+        "account_id": 5,
+        "address_id": 1,
+        "restaurant_id": 34,
+        "self_remarks": "多放醋",
+        "need_invoice": true,
+        "create_time": 1545227750026,
+        "due_time": 1545228650026,
+        "restaurant_name": "商铺111",
+        "restaurant_image_url": "http://pjchsh1l8.bkt.clouddn.com/1679d83003420.jpeg",
+        "total_price": 4425,
+        "deliver_fee": 25,
+        "manifest": [
+            {
+                "packing_fee": 7,
+                "_id": "5c1a35ff63487f0a54a667b4",
+                "food_id": 68,
+                "item_id": 562,
+                "name": "商铺111-分类1-凉皮1",
+                "price": 999,
+                "quantity": 2,
+                "label": "特大"
+            }
+        ]
+    }
 }
 ```
 
