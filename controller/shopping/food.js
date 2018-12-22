@@ -16,6 +16,8 @@ class Food extends AddressComponent {
     this.addFood = this.addFood.bind(this)
     this.updateFood = this.updateFood.bind(this)
     this.deleteFood = this.deleteFood.bind(this)
+    this.getList = this.getList.bind(this)
+    this.getCount = this.getCount.bind(this)
   }
 
   async test (req, res, next) {
@@ -233,6 +235,44 @@ class Food extends AddressComponent {
     let targetFood = belongMenu.foods.id(food_id)
     targetFood.remove()
     belongMenu.save()
+  }
+
+  // 获取商品列表
+  async getList (req, res, next) {
+    let { restaurant_id, offset = 0, limit = 20 } = req.query
+    try {
+      let va = new Validator()
+      va.add(restaurant_id, [{ rule: 'isEmpty', msg: '商铺id不能为空' }])
+      va.add(offset, [{ rule: 'isEmpty', msg: 'offset参数错误' }])
+      va.add(limit, [{ rule: 'isEmpty', msg: 'limit参数错误' }])
+      let vaResult = va.start()
+      if (vaResult) {
+        throw new Error(vaResult)
+      }
+      let targetShop = await ShopModel.findOne({ id: restaurant_id })
+      if (!targetShop) {
+        throw new Error('该商铺不存在')
+      }
+      let foodList = await FoodModel.find({ restaurant_id }, '-_id').skip(Number(offset)).limit(Number(limit))
+      res.send(Res.Success(foodList))
+    } catch (err) {
+      res.send(Res.Fail(err.message || '获取食品列表失败'))
+    }
+  }
+
+  // 获取商品数量
+  async getCount (req, res, next) {
+    let restaurant_id = req.query.id
+    let filter = {}
+    if (restaurant_id && Number(restaurant_id)) {
+      filter = { restaurant_id }
+    }
+    try {
+      let count = await FoodModel.find(filter).count()
+      res.send(Res.Success(count))
+    } catch (err) {
+      res.send(Res.Fail(err.message || '获取食品数量失败'))
+    }
   }
 }
 export default new Food()

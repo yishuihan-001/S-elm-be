@@ -25,10 +25,7 @@ class Account extends AddressComponent {
 
   // 创建并保存结算信息
   async create (req, res, next) {
-    let userId = req.session.UID || 1
-    if (!userId) {
-      return res.send(Res.Fail('你还没有登录哦'))
-    }
+    let userId = req.session.user_id
     let account_id
     try {
       account_id = await this.getId('account_id')

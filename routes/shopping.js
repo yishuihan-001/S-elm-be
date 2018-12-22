@@ -24,6 +24,8 @@ router.get('/remark/all', Remark.getAllRemark) // 获取所有备注标签
 router.post('/food/addFood', Food.addFood) // 添加商品
 router.post('/food/updateFood', Food.updateFood) // 更新商品
 router.delete('/food/deleteFood/:id', Food.deleteFood) // 删除商品
+router.get('/food/getList', Food.getList) // 获取商品列表
+router.get('/food/count', Food.getCount) // 获取商品数量
 
 router.post('/shop/addShop', Shop.addShop) // 添加商铺
 router.post('/shop/updateShop', Shop.updateShop) // 更新商铺
@@ -31,6 +33,7 @@ router.delete('/shop/deleteShop/:id', Shop.deleteShop) // 删除商铺
 router.get('/shop/search', Shop.searchShop) // 搜索商铺
 router.get('/shop/detail/:id', Shop.shopDetail) // 获取商铺详情
 router.post('/shop/getList', Shop.getList) // 获取商铺列表
+router.get('/shop/count', Shop.getCount) // 获取商铺数量
 
 router.post('/menu/addMenu', Menu.addMenu) // 添加商品分类
 router.get('/menu/getMenu/:id', Menu.getMenu) // 获取商品分类

@@ -16,6 +16,7 @@ class Order extends AddressComponent {
     this.create = this.create.bind(this)
     this.list = this.list.bind(this)
     this.detail = this.detail.bind(this)
+    this.allList = this.allList.bind(this)
   }
 
   async test (req, res, next) {
@@ -28,10 +29,7 @@ class Order extends AddressComponent {
 
   // 创建订单
   async create (req, res, next) {
-    let userId = req.session.UID || 1
-    if (!userId) {
-      return res.send(Res.Fail('你还没有登录哦'))
-    }
+    let userId = req.session.user_id
     let order_id
     try {
       order_id = await this.getId('order_id')
@@ -106,12 +104,9 @@ class Order extends AddressComponent {
     })
   }
 
-  // 获取订单列表
+  // 获取用户订单列表
   async list (req, res, next) {
-    let userId = req.session.UID || 1
-    if (!userId) {
-      return res.send(Res.Fail('你还没有登录哦'))
-    }
+    let userId = req.session.user_id
     let { offset = 0, limit = 20 } = req.query
     try {
       let orderList = await OrderModel.find({ user_id: userId }, '-_id').sort({ id: -1 }).skip(+offset).limit(+limit).lean()
@@ -127,17 +122,34 @@ class Order extends AddressComponent {
       })
       res.send(Res.Success(orderList))
     } catch (err) {
-      res.send(Res.Fail(err.message || '订单列表获取失败'))
+      res.send(Res.Fail(err.message || '用户订单列表获取失败'))
+    }
+  }
+
+  // 获取所有订单列表
+  async allList (req, res, next) {
+    let { offset = 0, limit = 20 } = req.query
+    try {
+      let orderList = await OrderModel.find({}, '-_id').sort({ id: -1 }).skip(+offset).limit(+limit).lean()
+      orderList.forEach(item => {
+        if (new Date().getTime() > item.due_time) {
+          item.status = -1
+          item.statusTitle = '支付超时'
+        } else {
+          item.status = 0
+          item.statusTitle = '等待支付'
+        }
+        // item.save()
+      })
+      res.send(Res.Success(orderList))
+    } catch (err) {
+      res.send(Res.Fail(err.message || '所有订单列表获取失败'))
     }
   }
 
   // 获取订单详情
   async detail (req, res, next) {
-    let userId = req.session.UID || 1
-    if (!userId) {
-      return res.send(Res.Fail('你还没有登录哦'))
-    }
-
+    let userId = req.session.user_id
     let orderId = req.params.id
     if (Ju.isEmpty(orderId)) {
       return res.send(Res.Fail('请输入订单id'))

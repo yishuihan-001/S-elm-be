@@ -555,7 +555,7 @@
 ```
 
 
-### 16. 获取商品分类
+### 16. 获取商品分类列表
 
     type: GET
 
@@ -788,6 +788,175 @@
 }
 ```
 
+### 22. 获取收货地址列表
+
+    type: GET
+
+    url: /address/getAddressList
+
+```javascript
+{
+    "status": 1,
+    "data": [
+        {
+            "sex": "male",
+            "tag": "公司",
+            "is_default": true,
+            "id": 8,
+            "user_id": 4,
+            "address": "东直门南大街",
+            "address_detail": "中汇广场",
+            "name": "杨先生",
+            "phone": 15000000000,
+            "lat": 100,
+            "lng": 200
+        }
+    ]
+}
+```
+
+
+### 23. 获取验证码
+
+    type: GET
+
+    url: /sundry/verify
+
+```javascript
+{
+    "status": 1,
+    "data": "data:image/png;base64,iVBORw0KGgo...=="
+}
+```
+
+
+### 24. 获取用户信息
+
+    type: GET
+
+    url: /user/userInfo
+
+```javascript
+{
+    "status": 1,
+    "data": {
+        "avatar": "default.jpg",
+        "is_active": 1,
+        "id": 2,
+        "username": "Slient",
+        "city": "北京",
+        "registe_time": "2018-12-21 15:23:48"
+    }
+}
+```
+
+
+### 25. 登录
+
+    type: POST
+
+    url: /user/login
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| username | Y | String | 用户名 |
+| password | Y | String | 密码 |
+| verifycode | Y | Number | 验证码 |
+
+> tip: 没有账号时，登录即创建账号
+
+```javascript
+{
+    "status": 1,
+    "data": {
+        "avatar": "default.jpg",
+        "is_active": 1,
+        "id": 3,
+        "username": "Slient",
+        "city": "北京",
+        "registe_time": "2018-12-21 15:34:15"
+    }
+}
+```
+
+### 26. 退出登录
+
+    type: GET
+
+    url: /user/signout
+
+```javascript
+{
+    "status": 1,
+    "data": "退出成功"
+}
+```
+
+
+### 27. 修改密码
+
+    type: POST
+
+    url: /user/changePassword
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| oldpassWord | Y | String | 旧密码 |
+| newpassword | Y | String | 新密码 |
+| confirmpassword | Y | String | 重复新密码 |
+| verifycode | Y | Number | 验证码 |
+
+```javascript
+{
+    "status": 1,
+    "data": "密码修改成功"
+}
+```
+
+
+### 28. 增加收货地址
+
+    type: POST
+
+    url: /address/addAddress
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| address | Y | String | 地址 |
+| address_detail | Y | String | 详细地址 |
+| name | Y | String | 收货人姓名 |
+| phone | Y | Number | 收货人电话 |
+| sex | N | String | 性别[enum：male,female,privary] |
+| tag | N | String | 标签[enum：家,公司,学校] |
+| lat | N | Number | 纬度 |
+| lng | N | Number | 经度 |
+| is_default | N | Boolean | 是否默认 |
+
+```javascript
+{
+    "status": 1,
+    "data": "收货地址添加成功"
+}
+```
+
+
+### 29. 删除收货地址
+
+    type: DELETE
+
+    url: /address/removeAddress/:id
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| id | Y | Number | 地址id |
+
+```javascript
+{
+    "status": 1,
+    "message": "删除成功"
+}
+```
+
 
 ### 30. 下单
 
@@ -818,7 +987,7 @@ remarks: [1, 2, 3]
 ```
 
 
-### 31. 获取订单列表
+### 31. 获取用户订单列表
 
     type: GET
 
@@ -942,6 +1111,350 @@ remarks: [1, 2, 3]
 ```
 
 
+### 33. 服务中心
+
+    type: GET
+
+    url: /sundry/explain
+
+```javascript
+{
+    "status": 1,
+    "data": [
+        {
+            "title": "补签规则",
+            "content": "### 如何补签？ 如忘记签到，可通过下单补签，漏签当日至红包领取日前一天每1笔有效订单可补签 1 天（仅限在线支付订单），例：如您在活动第 3 天忘记签到，只要你在第 3 天至第 9 天内完成1笔有效的订单，即可完成补签。",
+            "id": 1
+        }
+    ]
+}
+```
+
+
+### 34. 可用红包
+
+    type: GET
+
+    url: /hongbao/getHongbaoUsable?offset=0&limit=1
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| offset | Y | Number | 跳过数据条数 |
+| limit | Y | Number | 获取数据数量 |
+
+```javascript
+{
+    "status": 1,
+    "data": [
+        {
+            "id": 7160761341773,
+            "sn": "201705211244186655961161757573",
+            "user_id": 186655961,
+            "amount": 2,
+            "sum_condition": 40,
+            "name": "分享红包",
+            "phone": "13681711254",
+            "begin_date": "2017-05-21",
+            "end_date": "2017-05-23",
+            "description_map": {
+                "phone": "限收货手机号为 13681711254",
+                "online_paid_only": "限在线支付使用",
+                "validity_delta": "剩3日",
+                "validity_periods": "2017-05-23到期",
+                "sum_condition": "满 40 元可用"
+            },
+            "status": 0,
+            "present_status": 1,
+            "share_status": 0,
+            "__v": 0
+        }
+    ]
+}
+```
+
+
+### 35. 过期红包
+
+    type: GET
+
+    url: /hongbao/getHongbaoDue?offset=0&limit=1
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| offset | Y | Number | 跳过数据条数 |
+| limit | Y | Number | 获取数据数量 |
+
+```javascript
+{
+    "status": 1,
+    "data": [
+        {
+            "id": 7114345943885,
+            "sn": "201705180135186655961682785933",
+            "user_id": 186655961,
+            "amount": 4,
+            "sum_condition": 18,
+            "name": "普通红包",
+            "phone": "13681711254",
+            "begin_date": "2017-05-18",
+            "end_date": "2017-05-20",
+            "description_map": {
+                "phone": "限收货手机号为 13681711254",
+                "online_paid_only": "限在线支付使用",
+                "validity_delta": "-3天后可用",
+                "validity_periods": "2017-05-20到期",
+                "sum_condition": "满 18 元可用"
+            },
+            "limit_map": {
+                "restaurant_flavor_ids": "限品类：果蔬生鲜、商店超市"
+            },
+            "status": 0,
+            "present_status": 4,
+            "share_status": 0,
+            "__v": 0
+        }
+    ]
+}
+```
+
+
+### 36. 兑换红包
+
+    type: POST
+
+    url: /hongbao/exchange
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| exchange_code | Y | Number | 兑换码 |
+| verifycode | Y | Number | 验证码 |
+
+```javascript
+{
+    "status": 0,
+    "message": "无效的兑换码"
+}
+```
+
+
+### 37. 管理员登录
+
+    type: POST
+
+    url: /admin/login
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| username | Y | String | 用户名 |
+| password | Y | String | 密码 |
+
+> tip: 没有账号时，登录即创建账号
+
+```javascript
+{
+    "status": 1,
+    "data": {
+        "type": "o",
+        "avatar": "default.jpg",
+        "_id": "5c1de7343fd99d08f0f006cf",
+        "id": 22,
+        "username": "test7",
+        "password": "kieCJrvDqDfceckGyvLfzg==",
+        "create_time": "2018-12-22 15:26:44",
+        "city": "北京"
+    }
+}
+```
+
+
+### 38. 管理员退出登录
+
+    type: GET
+
+    url: /admin/signout
+
+```javascript
+{
+    "status": 1,
+    "data": "退出成功"
+}
+```
+
+
+### 39. 管理员信息
+
+    type: GET
+
+    url: /admin/userInfo
+
+```javascript
+{
+    "status": 1,
+    "data": {
+        "type": "o",
+        "avatar": "default.jpg",
+        "id": 22,
+        "username": "test7",
+        "create_time": "2018-12-22 15:26:44",
+        "city": "北京"
+    }
+}
+```
+
+
+### 40. 获取某日API请求量
+
+    type: GET
+
+    url: /statis/api/dateAcount/:date
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| date | Y | Date | 日期(2018-12-20) |
+
+```javascript
+{
+    "status": 1,
+    "data": 120
+}
+```
+
+
+### 41. 获取所有API请求量
+
+    type: GET
+
+    url: /statis/api/allAcount
+
+```javascript
+{
+    "status": 1,
+    "data": 10000
+}
+```
+
+
+### 42. 获取某天用户注册量
+
+    type: GET
+
+    url: /statis/user/dateRegisteNum/:date
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| date | Y | Date | 日期(2018-12-20) |
+
+```javascript
+{
+    "status": 1,
+    "data": 2
+}
+```
+
+
+### 43. 获取所有用户注册量
+
+    type: GET
+
+    url: /statis/user/allRegisteNum
+
+```javascript
+{
+    "status": 1,
+    "data": 2
+}
+```
+
+
+### 44. 获取某日订单量
+
+    type: GET
+
+    url: /statis/order/dateNum/:date
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| date | Y | Date | 日期(2018-12-20) |
+
+```javascript
+{
+    "status": 1,
+    "data": 2
+}
+```
+
+
+### 45. 获取所有订单数量
+
+    type: GET
+
+    url: /statis/order/allNum
+
+```javascript
+{
+    "status": 1,
+    "data": 2
+}
+```
+
+
+### 46. 管理员列表
+
+    type: GET
+
+    url: /admin/all?offset=0&limit=1
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| offset | Y | Number | 索引 |
+| limit | Y | Number | 条数 |
+
+
+```javascript
+{
+    "status": 1,
+    "data": [
+        {
+            "type": "o",
+            "avatar": "default.jpg",
+            "id": 15,
+            "username": "slientAdmin",
+            "create_time": "2018-12-22 15:12:43",
+            "city": "北京",
+        }
+    ]
+}
+```
+
+
+### 47. 获取管理员数量
+
+    type: GET
+
+    url: /admin/count
+
+```javascript
+{
+    "status": 1,
+    "data": 7
+}
+```
+
+
+### 49. 获取商铺数量
+
+    type: GET
+
+    url: /shopping/shop/count
+
+```javascript
+{
+    "status": 1,
+    "data": 1000
+}
+```
+
+
 ### 50. 更新商铺
 
     type: POST
@@ -985,6 +1498,82 @@ remarks: [1, 2, 3]
 ```
 
 
+### 52. 获取商品列表
+
+    type: GET
+
+    url: /shopping//food/getList?restaurant_id=34&offset=0&limit=20
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| id | Y | Number | 店铺id |
+| offset | N | Number | 索引 |
+| limit | N | Number | 条数 |
+
+```javascript
+{
+    "status": 1,
+    "data": [
+        {
+            "rating": 2.3,
+            "rating_count": 7,
+            "month_sales": 85,
+            "id": 68,
+            "restaurant_id": 34,
+            "menu_id": 21,
+            "name": "商铺111-分类1-凉皮1",
+            "image_path": "https://fuss10.elemecdn.com/b/73/3c5eba9f45ab42aaa23f35db2ab40jpeg.jpeg?imageMogr/format/webp/thumbnail/!140x140r/gravity/Center/crop/140x140/",
+            "is_multi": true,
+            "description": "很好喝的哦",
+            "attributes": [
+                {
+                    "_id": "5c1a2ff1e005c60a0a62e059",
+                    "name": "新",
+                    "color": "4C9C45"
+                }
+            ],
+            "activity": [
+                {
+                    "_id": "5c1a2ff1e005c60a0a62e05a",
+                    "keyword": "满减",
+                    "description": "满100，立减80",
+                    "id": 3863
+                }
+            ],
+            "multi_spec": [
+                {
+                    "_id": "5c1a2ff1e005c60a0a62e05f",
+                    "item_id": 562,
+                    "original_price": 999,
+                    "current_price": 888,
+                    "label": "特大",
+                    "stock": 99
+                }
+            ]
+        }
+    ]
+}
+```
+
+
+### 53. 获取商品数量
+
+    type: GET
+
+    url: /shopping/food/count?id=3
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| id | Y | Number | 店铺id |
+
+```javascript
+{
+    "status": 1,
+    "data": 93
+}
+```
+
+
 ### 55. 更新商品
 
     type: POST
@@ -1024,4 +1613,187 @@ remarks: [1, 2, 3]
 ```
 
 
+### 57. 获取用户列表
+
+    type: GET
+
+    url: /user/all?offset=0&limit=20
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| offset | Y | Number | 索引 |
+| limit | Y | Number | 条数 |
+
+
+```javascript
+{
+    "status": 1,
+    "data": [
+        {
+            "avatar": "default.jpg",
+            "is_active": 1,
+            "id": 4,
+            "username": "Slient",
+            "city": "北京",
+            "registe_time": "2018-12-21 17:13:29"
+        }
+    ]
+}
+```
+
+
+### 58. 获取所有订单列表
+
+    type: GET
+
+    url: /order/indent/allList
+
+```javascript
+{
+    "status": 1,
+    "data": [
+        {
+            "extra": {
+                "name": "餐盒费",
+                "price": 7,
+                "quantity": 99
+            },
+            "hongbao": 99,
+            "pay_type": 1,
+            "remarks": [
+                1,
+                2,
+                3
+            ],
+            "invoice": "天津西瑞尔",
+            "id": 6,
+            "user_id": 1,
+            "account_id": 5,
+            "address_id": 1,
+            "restaurant_id": 34,
+            "self_remarks": "多放醋",
+            "need_invoice": true,
+            "create_time": 1545228138176,
+            "due_time": 1545229038176,
+            "restaurant_name": "商铺111",
+            "restaurant_image_url": "http://pjchsh1l8.bkt.clouddn.com/1679d83003420.jpeg",
+            "total_price": 4425,
+            "deliver_fee": 25,
+            "manifest": [
+                {
+                    "packing_fee": 7,
+                    "_id": "5c1a35ff63487f0a54a667b4",
+                    "food_id": 68,
+                    "item_id": 562,
+                    "name": "商铺111-分类1-凉皮1",
+                    "price": 999,
+                    "quantity": 2,
+                    "label": "特大"
+                },
+                {
+                    "packing_fee": 7,
+                    "_id": "5c1a35ff63487f0a54a667b3",
+                    "food_id": 68,
+                    "item_id": 563,
+                    "name": "商铺111-分类1-凉皮1",
+                    "price": 897,
+                    "quantity": 2,
+                    "label": "大"
+                }
+            ],
+            "status": -1,
+            "statusTitle": "支付超时"
+        }
+    ]
+}
+```
+
+
+### 59. 获取地址信息
+
+    type: GET
+
+    url: /address/getAddress/:id
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| id | Y | Number | 地址id |
+
+```javascript
+{
+    "status": 1,
+    "data": {
+        "sex": "male",
+        "tag": "家",
+        "is_default": true,
+        "_id": "5c1ce1e6e73c021010596f23",
+        "id": 8,
+        "user_id": 4,
+        "address": "东直门南大街",
+        "address_detail": "中汇广场",
+        "name": "杨先生",
+        "phone": 15000000000,
+        "lat": 100,
+        "lng": 200
+    }
+}
+```
+
+
+### 60. 获取用户分布信息
+
+    type: GET
+
+    url: /user/areaNum
+
+```javascript
+{
+    "status": 1,
+    "data": {
+        "beijing": 2,
+        "shanghai": 0,
+        "shenzhen": 0,
+        "hangzhou": 0,
+        "qita": 0
+    }
+}
+```
+
+
+### 61. 获取某天管理员注册量
+
+    type: GET
+
+    url: /admin/dateRegisteNum/:date
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| date | Y | Date | 日期(2018-12-20) |
+
+```javascript
+{
+    "status": 1,
+    "data": 2
+}
+```
+
+
+### 62. 获取管理员分布信息
+
+    type: GET
+
+    url: /admin/areaNum
+
+```javascript
+{
+    "status": 1,
+    "data": {
+        "beijing": 2,
+        "shanghai": 0,
+        "shenzhen": 0,
+        "hangzhou": 0,
+        "qita": 0
+    }
+}
+```
 

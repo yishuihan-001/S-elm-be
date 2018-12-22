@@ -25,6 +25,7 @@ class Shop extends AddressComponent {
     this.searchShop = this.searchShop.bind(this)
     this.shopDetail = this.shopDetail.bind(this)
     this.getList = this.getList.bind(this)
+    this.getCount = this.getCount.bind(this)
   }
 
   async test (req, res, next) {
@@ -543,6 +544,16 @@ class Shop extends AddressComponent {
         res.send(Res.Fail(err.message || '获取商铺列表失败'))
       }
     })
+  }
+
+  // 获取商铺数量
+  async getCount (req, res, next) {
+    try {
+      let count = await ShopModel.count()
+      res.send(Res.Success(count))
+    } catch (err) {
+      res.send(Res.Fail(err.message || '获取商铺数量失败'))
+    }
   }
 
   // 属性排序方式

@@ -23,7 +23,10 @@ export default class BaseComponent {
       'food_id',
       'item_id',
       'account_id',
-      'order_id'
+      'order_id',
+      'user_id',
+      'address_id',
+      'admin_id'
     ]
     this.imgTypeList = ['shop', 'food', 'avatar', 'default']
     this.uploadImg = this.uploadImg.bind(this)
