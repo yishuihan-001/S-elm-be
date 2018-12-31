@@ -430,7 +430,7 @@ class Shop extends AddressComponent {
 
       try {
         let va = new Validator()
-        va.add(category_id, [{ rule: 'isEmpty', msg: '分类id不能为空' }])
+        // va.add(category_id, [{ rule: 'isEmpty', msg: '分类id不能为空' }])
         va.add(latitude, [{ rule: 'isEmpty', msg: '经度不能为空' }])
         va.add(longitude, [{ rule: 'isEmpty', msg: '纬度不能为空' }])
         let vaResult = va.start()
@@ -441,16 +441,19 @@ class Shop extends AddressComponent {
         return res.send(Res.Fail(err.message || '获取商铺列表失败'))
       }
 
-      try {
-        let targetCategory = await CategoryModel.find({ id: +category_id })
-        if (!targetCategory) {
-          throw new Error('该分类不存在')
+      let filter = { }
+      if (Ju.isNotEmpty(category_id)) {
+        try {
+          let targetCategory = await CategoryModel.find({ id: +category_id })
+          if (!targetCategory) {
+            throw new Error('该分类不存在')
+          }
+          filter = { category_id }
+        } catch (err) {
+          return res.send(Res.Fail(err.message || '请检查分类id'))
         }
-      } catch (err) {
-        return res.send(Res.Fail(err.message || '请检查分类id'))
       }
 
-      let filter = { category_id }
       let sortBy = {}
       if (Number(order_by)) {
         switch (Number(order_by)) {
@@ -538,7 +541,6 @@ class Shop extends AddressComponent {
         // console.log(numArr)
         // console.log(distanceArr)
         // console.log(durationArr)
-        console.log(shopList.length)
         res.send(Res.Success(shopList))
       } catch (err) {
         res.send(Res.Fail(err.message || '获取商铺列表失败'))

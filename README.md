@@ -162,7 +162,7 @@
 
 | 参数 | 必选 | 类型 | 说明 |
 | -- | -- | -- | -- |
-| category_id | Y | Number | 种类id |
+| category_id | N | Number | 种类id |
 | latitude | Y | Number | 纬度 |
 | longitude | Y | Number | 经度 |
 | offset | N | Number | 索引(从0开始) |
