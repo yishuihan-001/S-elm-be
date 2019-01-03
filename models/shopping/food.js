@@ -22,7 +22,7 @@ const foodSchema = new mongoose.Schema(
     month_sales: { type: Number, default: 0 },
     single_spec: { },
     multi_spec: [{
-      item_id: { type: Number, required: true },
+      item_id: { type: Number },
       original_price: { type: Number, required: true },
       current_price: { type: Number, required: true },
       stock: { type: Number, required: true },

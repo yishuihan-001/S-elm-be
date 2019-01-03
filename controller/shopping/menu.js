@@ -87,17 +87,19 @@ class Menu extends AddressComponent {
       return res.send(Res.Fail('商铺id不能为空'))
     }
 
+    let noThisShop = false
     try {
       let targetShop = await ShopModel.findOne({ id: shopId })
       if (!targetShop) {
-        throw new Error('该商铺不存在S')
+        noThisShop = true
+        // throw new Error('该商铺不存在S')
       }
     } catch (err) {
       return res.send(Res.Fail(err.message || '该商铺不存在'))
     }
 
     try {
-      let filter = { restaurant_id: +shopId }
+      let filter = noThisShop ? {} : { restaurant_id: +shopId }
       // if (+all !== 0) {
       //   filter = { restaurant_id: +shopId }
       // } else {

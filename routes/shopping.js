@@ -15,7 +15,7 @@ const router = express.Router()
 
 router.get('/test', Category.test) // 测试
 
-router.get('/category/all', Category.getAllCategory) // 获取所有商品分类
+router.get('/category/all', Category.getAllCategory) // 获取所有商铺分类
 router.get('/delivery/all', Delivery.getAllDelivery) // 获取所有配送方式
 router.get('/activity/all', Activity.getAllActivity) // 获取所有商家活动
 router.get('/label/all', Label.getAllLabel) // 获取所有商家属性标签

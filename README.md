@@ -169,7 +169,8 @@
 | limit | N | Number | 返回条数 |
 | order_by | N | Number | 见tip |
 | delivery_mode | N | Array | 支持的配送方式id |
-| activities | N | Array | 支持的配送方式id |
+| activities | N | Array | 支持的活动id |
+| labels | N | Array | 支持的商家属性id |
 
 > tip: order_by类型
 1 起送价
@@ -555,7 +556,7 @@
 ```
 
 
-### 16. 获取商品分类列表
+### 16. 获取商品分类列表menu
 
     type: GET
 

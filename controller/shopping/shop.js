@@ -426,7 +426,7 @@ class Shop extends AddressComponent {
     const form = new formidable.IncomingForm()
     form.parse(req, async (err, fields, files) => {
       if (err) return res.send(Res.Fail('formidable 初始化失败'))
-      let { category_id, latitude, longitude, offset = 0, limit = 20, order_by, delivery_mode = [], activities = [] } = fields
+      let { category_id, latitude, longitude, offset = 0, limit = 20, order_by, delivery_mode = [], activities = [], labels = [] } = fields
 
       try {
         let va = new Validator()
@@ -442,7 +442,7 @@ class Shop extends AddressComponent {
       }
 
       let filter = { }
-      if (Ju.isNotEmpty(category_id)) {
+      if (Ju.isNotEmpty(category_id) && category_id) {
         try {
           let targetCategory = await CategoryModel.find({ id: +category_id })
           if (!targetCategory) {
@@ -479,6 +479,11 @@ class Shop extends AddressComponent {
       // 支持的活动
       if (activities.length) {
         Object.assign(filter, { 'activities.id': { $all: activities } })
+      }
+
+      // 支持的属性
+      if (labels.length) {
+        Object.assign(filter, { 'labels.id': { $all: labels } })
       }
 
       try {

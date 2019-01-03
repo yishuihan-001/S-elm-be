@@ -249,11 +249,13 @@ class Food extends AddressComponent {
       if (vaResult) {
         throw new Error(vaResult)
       }
+      let filter = {}
       let targetShop = await ShopModel.findOne({ id: restaurant_id })
-      if (!targetShop) {
-        throw new Error('该商铺不存在')
+      if (targetShop) {
+        // throw new Error('该商铺不存在')
+        filter = { restaurant_id }
       }
-      let foodList = await FoodModel.find({ restaurant_id }, '-_id').skip(Number(offset)).limit(Number(limit))
+      let foodList = await FoodModel.find(filter, '-_id').skip(Number(offset)).limit(Number(limit))
       res.send(Res.Success(foodList))
     } catch (err) {
       res.send(Res.Fail(err.message || '获取食品列表失败'))
