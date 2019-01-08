@@ -729,7 +729,6 @@
 | -- | -- | -- | -- |
 | restaurant_id | Y | Number | 商铺id |
 | deliver_fee | Y | Number | 配送费 |
-| keyword | Y | Number | 关键词 |
 | extra | N | Object | 打包信息 |
 | manifest | Y | Array | 结算清单 |
 
@@ -1798,3 +1797,72 @@ remarks: [1, 2, 3]
 }
 ```
 
+
+### 63. 获取结算信息
+
+    type: GET
+
+    url: /order/account/getInfo/:id
+
+```javascript
+{
+    "status": 1,
+    "data": {
+        "extra": {
+            "name": "餐盒费",
+            "price": 7,
+            "quantity": 99
+        },
+        "id": 10,
+        "user_id": 7,
+        "restaurant_id": 34,
+        "restaurant_info": {
+            "description": "商铺描述111",
+            "promotion_info": "商的标语111",
+            "rating": 2,
+            "rating_count": 7,
+            "recent_order_num": 54,
+            "status": 0,
+            "id": 34,
+            "name": "商铺111",
+            "address": "中汇广场111",
+            "phone": 15000000000,
+            "latitude": 34.361938,
+            "longitude": 107.23732,
+            "category_id": 8,
+            "image_path": "http://pjchsh1l8.bkt.clouddn.com/1679d83003420.jpeg",
+            "float_delivery_fee": 5,
+            "float_minimum_order_amount": 20,
+            "startTime": "7:00",
+            "endTime": "22:00",
+            "business_license_image": "http://f0.jmstatic.com/btstatic/h5/index/bg_logo_1_1.jpg",
+            "catering_service_license_image": "http://f0.jmstatic.com/btstatic/h5/index/bg_logo_1_1.jpg"
+        },
+        "deliver_fee": 25,
+        "total_price": 4524,
+        "manifest": [
+            {
+                "packing_fee": 7,
+                "_id": "5c349ebee6495f0c8bbeac5a",
+                "food_id": 68,
+                "item_id": 562,
+                "name": "商铺111-分类1-凉皮1",
+                "price": 999,
+                "quantity": 2,
+                "label": "特大"
+            },
+            {
+                "packing_fee": 7,
+                "_id": "5c349ebee6495f0c8bbeac59",
+                "food_id": 68,
+                "item_id": 563,
+                "name": "商铺111-分类1-凉皮1",
+                "price": 897,
+                "quantity": 2,
+                "label": "大"
+            }
+        ],
+        "status": 0
+    }
+}
+```

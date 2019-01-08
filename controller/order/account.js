@@ -13,6 +13,7 @@ class Account extends AddressComponent {
     super()
     this.test = this.test.bind(this)
     this.create = this.create.bind(this)
+    this.getInfo = this.getInfo.bind(this)
   }
 
   async test (req, res, next) {
@@ -43,7 +44,7 @@ class Account extends AddressComponent {
         return res.send(Res.Fail('商铺id不能为空'))
       }
       try {
-        restaurant_info = await ShopModel.findOne({ id: +restaurant_id })
+        restaurant_info = await ShopModel.findOne({ id: +restaurant_id }, '-_id -labels -delivery_mode -activities')
         if (!restaurant_info) {
           throw new Error('该商铺不存在')
         }
@@ -103,11 +104,31 @@ class Account extends AddressComponent {
 
       try {
         await AccountModel.create(newAccount)
-        res.send(Res.Success('结算信息创建成功'))
+        res.send(Res.Success(account_id))
       } catch (err) {
         res.send(Res.Fail(err.message || '结算信息创建失败'))
       }
     })
+  }
+
+  // 获取结算信息
+  async getInfo (req, res, next) {
+    let userId = req.session.user_id
+    let id = req.params.id
+    if (Ju.isEmpty(id)) {
+      return res.send(res.Fail('结算信息id不能为空'))
+    }
+
+    try {
+      let account_info = await AccountModel.findOne({ id: +id, user_id: userId }, '-_id')
+      if (!account_info) {
+        throw new Error('该结算信息不存在，请核查结算id')
+      } else {
+        res.send(Res.Success(account_info))
+      }
+    } catch (err) {
+      res.send(res.Fail(err.message || '获取结算信息失败'))
+    }
   }
 
   // 获取餐盒信息

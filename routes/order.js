@@ -8,6 +8,7 @@ import Check from '../middlewares/check'
 const router = express.Router()
 
 router.post('/account/create', Check.checkUserLogin, Account.create) // 创建结算信息
+router.get('/account/getInfo/:id', Check.checkUserLogin, Account.getInfo) // 获取结算信息
 router.post('/indent/create', Check.checkUserLogin, Order.create) // 创建订单
 router.get('/indent/list', Check.checkUserLogin, Order.list) // 获取用户订单列表
 router.get('/indent/detail/:id', Check.checkUserLogin, Order.detail) // 获取订单详情
