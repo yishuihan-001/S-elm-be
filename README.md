@@ -1804,6 +1804,10 @@ remarks: [1, 2, 3]
 
     url: /order/account/getInfo/:id
 
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| id | Y | Number | 结算id |
+
 ```javascript
 {
     "status": 1,
@@ -1863,6 +1867,64 @@ remarks: [1, 2, 3]
             }
         ],
         "status": 0
+    }
+}
+```
+
+
+### 64. 获取商品信息
+
+    type: GET
+
+    url: /shopping//food/detail/:id
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| id | Y | Number | 商品id |
+
+```javascript
+{
+    "status": 1,
+    "data": {
+        "rating": 1.2,
+        "rating_count": 3,
+        "month_sales": 37,
+        "id": 79,
+        "restaurant_id": 34,
+        "menu_id": 23,
+        "name": "单规格肉夹馍",
+        "image_path": "https://fuss10.elemecdn.com/b/73/3c5eba9f45ab42aaa23f35db2ab40jpeg.jpeg?imageMogr/format/webp/thumbnail/!140x140r/gravity/Center/crop/140x140/",
+        "is_multi": false,
+        "description": "很好喝的哦",
+        "attributes": [
+            {
+                "_id": "5c2e0dfd219070048fbee7b3",
+                "name": "新",
+                "color": "4C9C45"
+            }],
+        "activity": [
+            {
+                "_id": "5c2e0dfd219070048fbee7b4",
+                "keyword": "满减",
+                "description": "满100，立减80",
+                "id": 463
+            }
+        ],
+        "single_spec": {
+            "item_id": 621,
+            "original_price": 19.9,
+            "current_price": 18.9,
+            "stock": 22
+        },
+        "multi_spec": [
+            {
+                "_id": "5c2e0dfd219070048fbee7b9",
+                "original_price": 999,
+                "current_price": 88,
+                "label": "特大",
+                "stock": 9
+            }
+        ]
     }
 }
 ```

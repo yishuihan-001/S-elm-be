@@ -9,7 +9,7 @@ module.exports = {
     cookie: {
       httpOnly: false,
       secure: false,
-      maxAge: 3600000
+      maxAge: 3600000 * 4
     }
   },
   mongodb: 'mongodb://localhost:27017/s-elm-be'

@@ -18,6 +18,7 @@ class Food extends AddressComponent {
     this.deleteFood = this.deleteFood.bind(this)
     this.getList = this.getList.bind(this)
     this.getCount = this.getCount.bind(this)
+    this.getDetail = this.getDetail.bind(this)
   }
 
   async test (req, res, next) {
@@ -274,6 +275,21 @@ class Food extends AddressComponent {
       res.send(Res.Success(count))
     } catch (err) {
       res.send(Res.Fail(err.message || '获取食品数量失败'))
+    }
+  }
+
+  // 获取商品详情
+  async getDetail (req, res, next) {
+    let foodId = +req.params.id
+    try {
+      let foodInfo = await FoodModel.findOne({ id: foodId }, '-_id')
+      if (!foodInfo) {
+        throw new Error('该商品不存在')
+      } else {
+        res.send(Res.Success(foodInfo))
+      }
+    } catch (err) {
+      res.send(Res.Fail(err.message || '获取商品详情失败'))
     }
   }
 }

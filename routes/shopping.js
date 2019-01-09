@@ -26,6 +26,7 @@ router.post('/food/updateFood', Food.updateFood) // 更新商品
 router.delete('/food/deleteFood/:id', Food.deleteFood) // 删除商品
 router.get('/food/getList', Food.getList) // 获取商品列表
 router.get('/food/count', Food.getCount) // 获取商品数量
+router.get('/food/detail/:id', Food.getDetail) // 获取商品详情
 
 router.post('/shop/addShop', Shop.addShop) // 添加商铺
 router.post('/shop/updateShop', Shop.updateShop) // 更新商铺

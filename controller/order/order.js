@@ -149,7 +149,6 @@ class Order extends AddressComponent {
 
   // 获取订单详情
   async detail (req, res, next) {
-    let userId = req.session.user_id
     let orderId = req.params.id
     if (Ju.isEmpty(orderId)) {
       return res.send(Res.Fail('请输入订单id'))
