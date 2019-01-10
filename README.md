@@ -982,7 +982,7 @@ remarks: [1, 2, 3]
 ```javascript
 {
     "status": 1,
-    "message": "订单创建成功"
+    "data": 8
 }
 ```
 
@@ -1926,5 +1926,23 @@ remarks: [1, 2, 3]
             }
         ]
     }
+}
+```
+
+
+### 65. 修改用户名
+
+    type: POST
+
+    url: /user/changeUsername
+
+| 参数 | 必选 | 类型 | 说明 |
+| -- | -- | -- | -- |
+| username | Y | String | 用户名 |
+
+```javascript
+{
+    "status": 1,
+    "data": "用户名修改成功"
 }
 ```

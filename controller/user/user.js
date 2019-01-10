@@ -18,6 +18,7 @@ class User extends AddressComponent {
     this.userInfo = this.userInfo.bind(this)
     this.signout = this.signout.bind(this)
     this.changePassword = this.changePassword.bind(this)
+    this.changeUsername = this.changeUsername.bind(this)
     this.getUserList = this.getUserList.bind(this)
     this.areaNum = this.areaNum.bind(this)
   }
@@ -131,7 +132,40 @@ class User extends AddressComponent {
           res.send(Res.Success('密码修改成功'))
         }
       } catch (err) {
-        res.send(Res.Fail(err.message || '登录失败'))
+        res.send(Res.Fail(err.message || '密码修改失败'))
+      }
+    })
+  }
+
+  // 修改用户名
+  async changeUsername (req, res, next) {
+    let user_id = req.session.user_id
+    const form = new formidable.IncomingForm()
+    form.parse(req, async (err, fields, files) => {
+      if (err) return res.send(Res.Fail('formidable 初始化失败'))
+      let { username } = fields
+
+      try {
+        let va = new Validator()
+        va.add(username, [{ rule: 'isEmpty', msg: '用户名不能为空' }, { rule: 'minLength:5', msg: '用户名长度需介于5-24字符之间' }, { rule: 'maxLength:24', msg: '用户名长度需介于5-24字符之间' }])
+        let vaResult = va.start()
+        if (vaResult) {
+          throw new Error(vaResult)
+        }
+
+        let resObj = await UserModel.findOne({ id: user_id })
+        let resObjInfo = await UserInfoModel.findOne({ id: user_id })
+        if (!resObj) {
+          throw new Error('未找到当前用户')
+        } else {
+          resObj.username = username
+          resObjInfo.username = username
+          resObj.save()
+          resObjInfo.save()
+          res.send(Res.Success('用户名修改成功'))
+        }
+      } catch (err) {
+        res.send(Res.Fail(err.message || '用户名修改失败'))
       }
     })
   }

@@ -65,12 +65,12 @@ class Address extends AddressComponent {
           lng,
           is_default
         }
-        let addressList = await AddressModel.find({})
+        let addressList = await AddressModel.find({ user_id: user_id })
         if (!addressList.length) {
           newAddress.is_default = true
         } else if (newAddress.is_default) {
-          addressList.forEach(item => {
-            AddressModel.findOneAndUpdate({ id: item.id }, { $set: { is_default: false } })
+          addressList.forEach(async item => {
+            await AddressModel.findOneAndUpdate({ user_id: user_id, id: item.id }, { $set: { is_default: false } })
           })
         }
         await AddressModel.create(newAddress)

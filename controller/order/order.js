@@ -97,7 +97,7 @@ class Order extends AddressComponent {
         }
 
         await OrderModel.create(newOrder)
-        res.send(Res.Success('订单创建成功'))
+        res.send(Res.Success(order_id))
       } catch (err) {
         res.send(Res.Fail(err.message || '订单创建失败'))
       }
