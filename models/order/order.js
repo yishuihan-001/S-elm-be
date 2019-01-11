@@ -37,7 +37,8 @@ const orderSchema = new mongoose.Schema(
       quantity: { type: Number, required: true },
       packing_fee: { type: Number, default: 0 },
       label: String
-    }]
+    }],
+    delivery_mode: []
   },
   {
     versionKey: false

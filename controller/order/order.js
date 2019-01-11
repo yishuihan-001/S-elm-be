@@ -93,7 +93,8 @@ class Order extends AddressComponent {
           total_price: account_info.total_price - hongbao,
           deliver_fee: account_info.deliver_fee,
           extra: account_info.extra,
-          manifest: account_info.manifest
+          manifest: account_info.manifest,
+          delivery_mode: restaurant_info.delivery_mode
         }
 
         await OrderModel.create(newOrder)
