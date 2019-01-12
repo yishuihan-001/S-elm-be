@@ -9,6 +9,7 @@ const router = express.Router()
 
 router.post('/upload', Image.upload) // 上传图片
 router.get('/verify', Verify.getVerifycode) // 获取验证码
-router.get('/explain', Explain.getExplain) // 获取常见问题
+router.get('/explainList', Explain.getExplainList) // 获取常见问题
+router.get('/explainDetail/:id', Explain.getExplainDetail) // 获取常见问题详情
 
 export default router
